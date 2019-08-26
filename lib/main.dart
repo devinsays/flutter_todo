@@ -5,6 +5,7 @@ import 'package:flutter_todo/views/register.dart';
 import 'package:flutter_todo/views/password_reset.dart';
 import 'package:flutter_todo/views/todos.dart';
 import 'package:flutter_todo/views/add_todo.dart';
+import 'package:flutter_todo/views/tasks.dart';
 
 void main() {
   runApp(
@@ -15,7 +16,7 @@ void main() {
         '/login': (context) => LogIn(),
         '/register': (context) => Register(),
         '/password-reset': (context) => PasswordReset(),
-        '/todos': (context) => Todos(),
+        '/todos': (context) => Tasks(),
         '/add': (context) => AddTodo(),
       },
     ),
