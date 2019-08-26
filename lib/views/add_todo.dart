@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todo/utilities/api.dart';
 
-class AddTodo extends StatelessWidget {
+class AddTodo extends StatefulWidget {
   @override
+  _AddTodoState createState() => _AddTodoState();
+}
 
-  TextEditingController textfield = TextEditingController();
-  bool response;
+class _AddTodoState extends State<AddTodo> {
+  final textController = TextEditingController();
 
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -15,7 +24,7 @@ class AddTodo extends StatelessWidget {
           FlatButton(
             textColor: Colors.white,
             onPressed: () async {
-              response = await addTodo(context, textfield.text);
+              bool response = await addTodo(context, textController.text);
               if (response) {
                 Navigator.pushReplacementNamed(context, '/');
               }
@@ -31,7 +40,7 @@ class AddTodo extends StatelessWidget {
             keyboardType: TextInputType.multiline,
             maxLines: null,
             textInputAction: TextInputAction.done,
-            controller: textfield,
+            controller: textController,
           ),
         ),
       ),
