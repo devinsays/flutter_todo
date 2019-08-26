@@ -15,8 +15,7 @@ Widget taskList(BuildContext context, List<Todo> todos, toggleTodo) {
         title: Text(todo.value),
         enabled: todo.status != 'processing',
         onTap: () {
-          toggleTodo(todo, index, context);
-          // _toggleTodo(todo, index, context);
+          toggleTodo(context, todo);
         },
       );
     },
