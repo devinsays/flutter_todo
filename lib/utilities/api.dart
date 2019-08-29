@@ -13,7 +13,11 @@ import 'package:flutter_todo/widgets/todo_response.dart';
  * Returns a list of todos.
  */
  Future<TodoResponse> getTodos(BuildContext context, String status, { String url = '' }) async {
-  final url = 'https://laravelreact.com/api/v1/todo?status=$status';
+  
+  // Defaults to the first page if no url is set.
+  if ('' == url) {
+    url = 'https://laravelreact.com/api/v1/todo?status=$status';
+  }
 
   String token = await getToken();
 
@@ -34,9 +38,6 @@ import 'package:flutter_todo/widgets/todo_response.dart';
 
   List<Todo> todos = todoFromJson(json.encode(data));
   String next = apiResponse['links']['next'];
-
-  print('next');
-  print(next);
 
   return TodoResponse(todos, next);
 }

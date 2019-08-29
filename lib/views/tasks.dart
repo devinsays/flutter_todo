@@ -19,6 +19,8 @@ class TodosState extends State<Todos> {
   String openTodosApiMore; 
   String closedTodosApiMore;
 
+  bool loading = true;
+
   @override
   initState() {
     super.initState();
@@ -34,6 +36,7 @@ class TodosState extends State<Todos> {
       openTodosApiMore = openTodosResponse.apiMore;
       closedTodos = closedTodosResponse.todos;
       closedTodosApiMore = closedTodosResponse.apiMore;
+      loading = false;
     });
   }
 
@@ -86,6 +89,21 @@ class TodosState extends State<Todos> {
     );
   }
 
+  void loadMore() async {
+    // If we're already loading, return early to avoid duplicates.
+    if (loading || openTodosApiMore == null) { return; }
+    setState(() { loading = true; });
+
+    TodoResponse openTodosResponse = await getTodos(context, 'open', url: openTodosApiMore);
+    List<Todo> allOpenTodos = [openTodos, openTodosResponse.todos].expand((x) => x).toList();
+
+    setState(() {
+      openTodos = allOpenTodos;
+      openTodosApiMore = openTodosResponse.apiMore;
+      loading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +111,7 @@ class TodosState extends State<Todos> {
         title: Text('Todos'),
       ),
       body: Center(
-        child: taskList(context, openTodos, toggleTodo),
+        child: taskList(context, openTodos, toggleTodo, loadMore),
       ),
     );
   }
