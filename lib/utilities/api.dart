@@ -1,16 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:collection';
 
-import 'package:flutter_todo/utilities/auth.dart';
 import 'package:flutter_todo/models/todo.dart';
+import 'package:flutter_todo/utilities/auth.dart';
+import 'package:flutter_todo/widgets/todo_response.dart';
 
 /*
  * Returns a list of todos.
  */
- Future<List<Todo>> getTodos(String status, context) async {
+ Future<TodoResponse> getTodos(BuildContext context, String status, { String url = '' }) async {
   final url = 'https://laravelreact.com/api/v1/todo?status=$status';
 
   String token = await getToken();
@@ -24,13 +26,19 @@ import 'package:flutter_todo/models/todo.dart';
 
   if (response.statusCode == 401) {
     await logOut(context, true);
-    return <Todo>[];
+    return TodoResponse([], null);
   }
 
   LinkedHashMap<String, dynamic> apiResponse = json.decode(response.body);
   List<dynamic> data = apiResponse['data'];
+
   List<Todo> todos = todoFromJson(json.encode(data));
-  return todos;
+  String next = apiResponse['links']['next'];
+
+  print('next');
+  print(next);
+
+  return TodoResponse(todos, next);
 }
 
 toggleTodoStatus(context, int id, String status) async {

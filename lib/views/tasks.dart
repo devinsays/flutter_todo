@@ -3,6 +3,7 @@ import 'package:flutter_todo/utilities/auth.dart';
 import 'package:flutter_todo/utilities/api.dart';
 import 'package:flutter_todo/models/todo.dart';
 import 'package:flutter_todo/widgets/todo_list.dart';
+import 'package:flutter_todo/widgets/todo_response.dart';
 
 class Todos extends StatefulWidget {
   @override
@@ -13,77 +14,76 @@ class TodosState extends State<Todos> {
   List<Todo> openTodos = List<Todo>();
   List<Todo> closedTodos = List<Todo>();
 
+  // The API is paginated. If there are more results we store
+  // the API url in order to lazily load them later.
+  String openTodosApiMore; 
+  String closedTodosApiMore;
+
   @override
   initState() {
     super.initState();
+    getInitialData();
+  }
 
-    // Get open todos
-    // Switch to an await?
-    Future openTodosFuture = getTodos('open', context);
-    openTodosFuture.then((data) {
-      setState(() {
-        openTodos = data;
-      });
+  void getInitialData() async {
+    TodoResponse openTodosResponse = await getTodos(context, 'open');
+    TodoResponse closedTodosResponse = await getTodos(context, 'closed');
+
+    setState(() {
+      openTodos = openTodosResponse.todos;
+      openTodosApiMore = openTodosResponse.apiMore;
+      closedTodos = closedTodosResponse.todos;
+      closedTodosApiMore = closedTodosResponse.apiMore;
     });
-
-    // Get closed todos
-    // Switch to an await?
-    // Also, maybe only load once tab gets switched?
-    Future closedTodosFuture = getTodos('closed', context);
-    closedTodosFuture.then((data) {
-      setState(() {
-        closedTodos = data;
-      });
-    });
-
   }
 
   toggleTodo(BuildContext context, Todo todo) async {
     List<Todo> openTodosModified = this.openTodos;
     List<Todo> closedTodosModified = this.closedTodos;
 
-    // Set todo to 'processing'
-
-    // Flip the status.
+    // Store the todo status.
+    String statusOriginal = todo.status;
     String statusModified = todo.status == 'open' ? 'closed' : 'open';
+
+    // Set todo to 'processing' in state.
+    setState(() => todo.status = 'processing');
 
     // Updates the status via an API call.
     bool updated = await toggleTodoStatus(context, todo.id, statusModified);
 
     // Default status message.
-    // This can probably be moved into a function?
-    Widget statusMessage = SnackBar(
-      content: Text('Error has occured.'),
-      behavior: SnackBarBehavior.floating,
-    );
-
+    Widget statusMessage = getStatusMessage('Error has occured.');
+  
     if (statusModified == 'open') {
       openTodosModified.add(todo);
       closedTodosModified.remove(todo);
-
-      statusMessage = SnackBar(
-        content: Text('Task opened.'),
-        behavior: SnackBarBehavior.floating,
-      );
+      statusMessage = getStatusMessage('Task opened.');
     }
 
     if (statusModified == 'closed') {
       closedTodosModified.add(todo);
       openTodosModified.remove(todo);
-      statusMessage = SnackBar(
-        content: Text('Task closed.'),
-        behavior: SnackBarBehavior.floating,
-      );
+      statusMessage = getStatusMessage('Task closed.');
     }
 
     if (updated) {
       setState(() {
         openTodos = openTodosModified;
         closedTodos = closedTodosModified;
+        todo.status = statusModified;
       });
+    } else {
+      todo.status = statusOriginal;
     }
 
     Scaffold.of(context).showSnackBar(statusMessage);
+  }
+
+  Widget getStatusMessage(String message) {
+    return SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating,
+    );
   }
 
   @override
