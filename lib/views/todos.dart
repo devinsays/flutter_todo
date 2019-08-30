@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_todo/utilities/auth.dart';
 import 'package:flutter_todo/utilities/api.dart';
 import 'package:flutter_todo/models/todo.dart';
+import 'package:flutter_todo/widgets/todo_list.dart';
+import 'package:flutter_todo/widgets/todo_response.dart';
 
 class Todos extends StatefulWidget {
   @override
@@ -10,110 +11,132 @@ class Todos extends StatefulWidget {
 }
 
 class TodosState extends State<Todos> {
-  List<Todo> todos = List<Todo>();
+  List<Todo> openTodos = List<Todo>();
+  List<Todo> closedTodos = List<Todo>();
 
-  Future<List<Todo>> openTodoList;
-  Future<List<Todo>> archivedTodoList;
+  // The API is paginated. If there are more results we store
+  // the API url in order to lazily load them later.
+  String openTodosApiMore; 
+  String closedTodosApiMore;
+
+  // Where new items are being actively loaded.
+  bool loading = true;
+
+  // Active tab.
+  String activeTab = 'open';
 
   @override
   initState() {
     super.initState();
-    openTodoList = getTodos('open', context);
-    archivedTodoList = getTodos('closed', context);
+    getInitialData();
   }
 
-  _toggleTodo(Todo todo, int index, BuildContext context) async {
-    // Flip the status.
-    String newStatus = todo.status == 'open' ? 'closed' : 'open';
+  void getInitialData() async {
+    TodoResponse openTodosResponse = await getTodos(context, 'open');
+    TodoResponse closedTodosResponse = await getTodos(context, 'closed');
+
+    setState(() {
+      openTodos = openTodosResponse.todos;
+      openTodosApiMore = openTodosResponse.apiMore;
+      closedTodos = closedTodosResponse.todos;
+      closedTodosApiMore = closedTodosResponse.apiMore;
+      loading = false;
+    });
+  }
+
+  toggleTodo(BuildContext context, Todo todo) async {
+    List<Todo> openTodosModified = this.openTodos;
+    List<Todo> closedTodosModified = this.closedTodos;
+
+    // Store the todo status.
+    String statusOriginal = todo.status;
+    String statusModified = todo.status == 'open' ? 'closed' : 'open';
+
+    // Set todo to 'processing' in state.
+    setState(() => todo.status = 'processing');
 
     // Updates the status via an API call.
-    bool updated = await toggleTodoStatus(context, todo.id, newStatus);
+    bool updated = await toggleTodoStatus(context, todo.id, statusModified);
 
-    // Updates the lists.
-    List<Todo> openTodoListData = await openTodoList;
-    List<Todo> archivedTodoListData = await archivedTodoList;
-
-    Widget statusMessage = SnackBar(
-      content: Text('Error has occured.'),
-      behavior: SnackBarBehavior.floating,
-    );
-
-    if (newStatus == 'open') {
-      openTodoListData.add(todo);
-      archivedTodoListData.removeAt(index);
-      statusMessage = SnackBar(
-        content: Text('Task opened.'),
-        behavior: SnackBarBehavior.floating,
-      );
+    // Default status message.
+    Widget statusMessage = getStatusMessage('Error has occured.');
+  
+    if (statusModified == 'open') {
+      openTodosModified.add(todo);
+      closedTodosModified.remove(todo);
+      statusMessage = getStatusMessage('Task opened.');
     }
 
-    if (newStatus == 'closed') {
-      archivedTodoListData.add(todo);
-      openTodoListData.removeAt(index);
-      statusMessage = SnackBar(
-        content: Text('Task closed.'),
-        behavior: SnackBarBehavior.floating,
-      );
+    if (statusModified == 'closed') {
+      closedTodosModified.add(todo);
+      openTodosModified.remove(todo);
+      statusMessage = getStatusMessage('Task closed.');
     }
 
-    // Updates local state now that call has completed.
     if (updated) {
       setState(() {
-        todo.status = newStatus;
-        openTodoList =
-            Future.delayed(Duration(milliseconds: 0), () => openTodoListData);
-        archivedTodoList = Future.delayed(
-            Duration(milliseconds: 0), () => archivedTodoListData);
+        openTodos = openTodosModified;
+        closedTodos = closedTodosModified;
+        todo.status = statusModified;
       });
+    } else {
+      todo.status = statusOriginal;
     }
 
     Scaffold.of(context).showSnackBar(statusMessage);
   }
 
-  Widget showTodoList(Future todosFuture) {
-    return Container(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 15.0, 0, 15.0),
-        child: FutureBuilder<dynamic>(
-          future: todosFuture,
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasData) {
-              final todos = snapshot.data ?? <Todo>[];
-              if (todos.length == 0) {
-                return Text('No items.');
-              }
-              return ListView.separated(
-                itemCount: todos.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final todo = todos[index];
-                  final statusIcon = todo.status == 'open'
-                      ? Icons.radio_button_unchecked
-                      : Icons.radio_button_checked;
-                  return ListTile(
-                    key: Key((todo.id).toString()),
-                    leading: Icon(statusIcon),
-                    title: Text(todo.value),
-                    enabled: todo.status != 'processing',
-                    onTap: () {
-                      _toggleTodo(todo, index, context);
-                    },
-                  );
-                },
-                separatorBuilder: (context, index) => Divider(
-                  color: Colors.black38,
-                ),
-              );
-            }
-            return Center(
-              child: Text('No data available.'),
-            );
-          },
-        ),
-      ),
+  Widget getStatusMessage(String message) {
+    return SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating,
     );
   }
+
+  void loadMore() async {
+    // Set apiMore based on the activeTab.
+    String apiMore = (activeTab == 'open') ? openTodosApiMore : closedTodosApiMore;
+
+    // If we're already loading or there are no more items, return early.
+    if (loading || apiMore == null) {
+      return;
+    }
+
+    setState(() { loading = true; });
+
+    // Get the current todos for the active tab.
+    List<Todo> currentTodos = (activeTab == 'open') ? openTodos : closedTodos;
+
+    // Make the API call to get more todos.
+    TodoResponse todosResponse = await getTodos(context, activeTab, url: apiMore);
+    List<Todo> allTodos = [...currentTodos, ...todosResponse.todos];
+
+    setState(() {
+      if (activeTab == 'open') {
+        openTodos = allTodos;
+        openTodosApiMore = todosResponse.apiMore;
+      }
+
+      if (activeTab == 'closed') {
+        closedTodos = allTodos;
+        closedTodosApiMore = todosResponse.apiMore;
+      }
+
+      loading = false;
+    });
+  }
+
+  Widget loadingIndicator = Stack(
+    children: [
+      new Opacity(
+        opacity: 0.3,
+        child: const ModalBarrier(dismissible: false, color: Colors.grey),
+      ),
+      new Center(
+        child: new CircularProgressIndicator(),
+      ),
+    ],
+  );
 
   void displayProfileMenu(context) {
     showModalBottomSheet(
@@ -148,8 +171,7 @@ class TodosState extends State<Todos> {
               icon: const Icon(Icons.account_circle),
               tooltip: 'Profile',
               onPressed: () {
-                displayProfileMenu(
-                    context); // Show Bottom Modal Sheet with Logout Link
+                displayProfileMenu(context);
               },
             ),
           ],
@@ -158,12 +180,17 @@ class TodosState extends State<Todos> {
               Tab(icon: Icon(Icons.check_box_outline_blank)),
               Tab(icon: Icon(Icons.check_box)),
             ],
+            onTap: (int index) {
+              setState(() {
+                activeTab = index == 1 ? 'closed' : 'open';
+              });
+            },
           ),
         ),
         body: TabBarView(
           children: [
-            showTodoList(openTodoList),
-            showTodoList(archivedTodoList),
+            taskList(context, openTodos, toggleTodo, loadMore),
+            taskList(context, closedTodos, toggleTodo, loadMore),
           ],
         ),
         floatingActionButton: FloatingActionButton(
