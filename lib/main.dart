@@ -3,8 +3,8 @@ import 'package:flutter_todo/views/loading.dart';
 import 'package:flutter_todo/views/login.dart';
 import 'package:flutter_todo/views/register.dart';
 import 'package:flutter_todo/views/password_reset.dart';
-import 'package:flutter_todo/views/todos.dart';
 import 'package:flutter_todo/views/add_todo.dart';
+import 'package:flutter_todo/views/todos.dart';
 
 void main() {
   runApp(
