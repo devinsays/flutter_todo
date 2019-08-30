@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todo/models/todo.dart';
 
-Widget taskList(BuildContext context, List<Todo> todos, toggleTodo, loadMore) {
+Widget todoList(BuildContext context, List<Todo> todos, toggleTodo, loadMore) {
 
   ScrollController _scrollController = ScrollController();
 

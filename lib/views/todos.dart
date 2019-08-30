@@ -4,6 +4,7 @@ import 'package:flutter_todo/utilities/api.dart';
 import 'package:flutter_todo/models/todo.dart';
 import 'package:flutter_todo/widgets/todo_list.dart';
 import 'package:flutter_todo/widgets/todo_response.dart';
+import 'package:flutter_todo/widgets/add_todo.dart';
 
 class Todos extends StatefulWidget {
   @override
@@ -126,17 +127,33 @@ class TodosState extends State<Todos> {
     });
   }
 
-  Widget loadingIndicator = Stack(
-    children: [
-      new Opacity(
-        opacity: 0.3,
-        child: const ModalBarrier(dismissible: false, color: Colors.grey),
-      ),
-      new Center(
-        child: new CircularProgressIndicator(),
-      ),
-    ],
-  );
+  void showAddTaskSheet(context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return AddTodo();
+      },
+    );
+  }
+
+  void addNewTodo(BuildContext context, String text) async {
+    bool response = await addTodo(context, text);
+
+    if (response) {
+      Todo todo = new Todo();
+      todo.value = text;
+      todo.status = 'open';
+
+      List<Todo> openTodosModified = this.openTodos;
+      openTodosModified.add(todo);
+
+      setState(() {
+        openTodos = openTodosModified;
+      });
+    }
+
+    Navigator.pop(context);
+  }
 
   void displayProfileMenu(context) {
     showModalBottomSheet(
@@ -189,13 +206,13 @@ class TodosState extends State<Todos> {
         ),
         body: TabBarView(
           children: [
-            taskList(context, openTodos, toggleTodo, loadMore),
-            taskList(context, closedTodos, toggleTodo, loadMore),
+            todoList(context, openTodos, toggleTodo, loadMore),
+            todoList(context, closedTodos, toggleTodo, loadMore),
           ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.pushNamed(context, '/add');
+            showAddTaskSheet(context);
           },
           child: Icon(Icons.add),
         ),
