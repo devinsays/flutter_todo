@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import 'package:flutter_todo/utilities/auth.dart';
+import 'package:flutter_todo/models/auth.dart';
 import 'package:flutter_todo/widgets/screen_arguments.dart';
 
 class Register extends StatelessWidget {
@@ -81,7 +82,7 @@ class RegisterFormState extends State<RegisterForm> {
   Future<void> submit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
-      response = await register(name, email, password, passwordConfirm);
+      response = await Provider.of<AuthRepository>(context).register(name, email, password, passwordConfirm);
       if (response['success']) {
         Navigator.pushReplacementNamed(
           context,

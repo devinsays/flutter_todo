@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-
 import 'package:provider/provider.dart';
+
 import 'package:flutter_todo/models/auth.dart';
 import 'package:flutter_todo/widgets/screen_arguments.dart';
 
@@ -77,6 +77,15 @@ class LogInFormState extends State<LogInForm> {
 
   @override
   Widget build(BuildContext context) {
+
+    final ScreenArguments args = ModalRoute.of(context).settings.arguments;
+
+    if (args != null) {
+      setState(() {
+        message = args.message;
+      });
+    }
+    
     return Form(
       key: _formKey,
       child: Column(
@@ -94,7 +103,7 @@ class LogInFormState extends State<LogInForm> {
           SizedBox(height: 10.0),
           Consumer<AuthRepository>(
             builder: (context, provider, child) => Text(
-              provider.notification ?? '',
+              provider.notification ?? this.message ?? '',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.red,

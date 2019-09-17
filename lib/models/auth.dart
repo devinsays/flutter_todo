@@ -17,6 +17,8 @@ class AuthRepository with ChangeNotifier {
   String get name => _name;
   String get notification => _notification;
 
+  final String api = 'https://laravelreact.com/api/v1/auth';
+
   initAuthProvider() async {
     String token = await getToken();
     if (token != null) {
@@ -34,7 +36,7 @@ class AuthRepository with ChangeNotifier {
     _notification = '';
     notifyListeners();
 
-    final url = "https://laravelreact.com/api/v1/auth/login";
+    final url = "$api/login";
 
     Map<String, String> body = {
       'email': email,
@@ -66,7 +68,7 @@ class AuthRepository with ChangeNotifier {
   }
 
   Future<Map> register(String name, String email, String password, String passwordConfirm) async {
-    final url = "https://laravelreact.com/api/v1/auth/register";
+    final url = "$api/register";
 
     Map<String, String> body = {
       'name': name,
@@ -108,7 +110,7 @@ class AuthRepository with ChangeNotifier {
   }
 
   passwordReset(String email) async {
-    final url = "https://laravelreact.com/api/v1/auth/forgot-password";
+    final url = "$api/forgot-password";
 
     Map<String, String> body = {
       'email': email,
@@ -147,18 +149,15 @@ class AuthRepository with ChangeNotifier {
     return token;
   }
 
-  Future logOut(BuildContext context, [bool tokenExpired = false]) async {
-    print('logOut');
+  logOut([bool tokenExpired = false]) async {
     _status = Status.Unauthenticated;
-    SharedPreferences storage = await SharedPreferences.getInstance();
-    await storage.clear();
-
     if (tokenExpired == true) {
       _notification = 'Session expired. Please log in again.';
     }
-
     notifyListeners();
-    return Future.delayed(Duration.zero);
+
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    await storage.clear();
   }
 
 }
