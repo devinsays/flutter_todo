@@ -14,6 +14,7 @@ class Todos extends StatefulWidget {
 }
 
 class TodosState extends State<Todos> {
+  bool init = false;
   List<Todo> openTodos = List<Todo>();
   List<Todo> closedTodos = List<Todo>();
 
@@ -28,17 +29,12 @@ class TodosState extends State<Todos> {
   // Active tab.
   String activeTab = 'open';
 
-  @override
-  initState() {
-    super.initState();
-    getInitialData();
-  }
-
   void getInitialData() async {
     TodoResponse openTodosResponse = await getTodos(context, 'open');
     TodoResponse closedTodosResponse = await getTodos(context, 'closed');
 
     setState(() {
+      init = true;
       openTodos = openTodosResponse.todos;
       openTodosApiMore = openTodosResponse.apiMore;
       closedTodos = closedTodosResponse.todos;
@@ -180,6 +176,12 @@ class TodosState extends State<Todos> {
 
   @override
   Widget build(BuildContext context) {
+
+    // Temporary until todo lists get moved into a provider.
+    if ( ! this.init ) {
+      getInitialData();
+    }
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
