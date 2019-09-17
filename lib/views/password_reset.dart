@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import 'package:flutter_todo/utilities/auth.dart';
+import 'package:flutter_todo/models/auth.dart';
 import 'package:flutter_todo/widgets/screen_arguments.dart';
 
 class PasswordReset extends StatelessWidget {
@@ -55,7 +56,7 @@ class PasswordResetFormState extends State<PasswordResetForm> {
   Future<void> submit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
-      response = await passwordReset(email);
+      response = await Provider.of<AuthRepository>(context).passwordReset(email);
       if (response['reset']) {
         Navigator.pushReplacementNamed(
           context,

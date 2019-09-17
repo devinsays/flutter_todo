@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:provider/provider.dart';
 
-import 'package:flutter_todo/utilities/auth.dart';
+import 'package:flutter_todo/models/auth.dart';
 import 'package:flutter_todo/widgets/screen_arguments.dart';
 
 class LogIn extends StatelessWidget {
@@ -37,8 +38,6 @@ class LogInFormState extends State<LogInForm> {
   String password;
   String message = '';
 
-  Map response = new Map();
-
   String validateEmail(String value) {
     if (value.trim().isEmpty) {
       return 'Email is required.';
@@ -64,14 +63,7 @@ class LogInFormState extends State<LogInForm> {
   Future<void> submit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
-      response = await login(email, password);
-      if (response['auth']) {
-        Navigator.pushReplacementNamed(context, '/');
-      } else {
-        setState(() {
-          message = response['message'];
-        });
-      }
+      await Provider.of<AuthRepository>(context).login(email, password);
     }
   }
 
@@ -85,6 +77,7 @@ class LogInFormState extends State<LogInForm> {
 
   @override
   Widget build(BuildContext context) {
+
     final ScreenArguments args = ModalRoute.of(context).settings.arguments;
 
     if (args != null) {
@@ -92,7 +85,7 @@ class LogInFormState extends State<LogInForm> {
         message = args.message;
       });
     }
-
+    
     return Form(
       key: _formKey,
       child: Column(
@@ -108,11 +101,13 @@ class LogInFormState extends State<LogInForm> {
             ),
           ),
           SizedBox(height: 10.0),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.red,
+          Consumer<AuthRepository>(
+            builder: (context, provider, child) => Text(
+              provider.notification ?? this.message ?? '',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.red,
+              ),
             ),
           ),
           SizedBox(height: 30.0),

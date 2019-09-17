@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_todo/utilities/auth.dart';
+
+import 'package:provider/provider.dart';
+import 'package:flutter_todo/models/auth.dart';
 
 class Loading extends StatelessWidget {
 
-  redirect(BuildContext context) async {
-    String token = await getToken();
-    if (token != null) {
-      Navigator.pushReplacementNamed(context, '/todos');
-    } else {
-      Navigator.pushReplacementNamed(context, '/login');
-    }
+  initAuthProvider(context) async {
+    Provider.of<AuthRepository>(context).initAuthProvider();
   }
 
   @override
   Widget build(BuildContext context) {
 
-    // Redirect once token has been retrieved.
-    redirect(context);
+    initAuthProvider(context);
 
     return Scaffold(
       appBar: AppBar(

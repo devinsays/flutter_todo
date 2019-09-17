@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_todo/utilities/auth.dart';
+import 'package:provider/provider.dart';
+
+import 'package:flutter_todo/models/auth.dart';
 import 'package:flutter_todo/utilities/api.dart';
 import 'package:flutter_todo/models/todo.dart';
 import 'package:flutter_todo/widgets/todo_list.dart';
@@ -12,6 +14,7 @@ class Todos extends StatefulWidget {
 }
 
 class TodosState extends State<Todos> {
+  bool init = false;
   List<Todo> openTodos = List<Todo>();
   List<Todo> closedTodos = List<Todo>();
 
@@ -26,17 +29,12 @@ class TodosState extends State<Todos> {
   // Active tab.
   String activeTab = 'open';
 
-  @override
-  initState() {
-    super.initState();
-    getInitialData();
-  }
-
   void getInitialData() async {
     TodoResponse openTodosResponse = await getTodos(context, 'open');
     TodoResponse closedTodosResponse = await getTodos(context, 'closed');
 
     setState(() {
+      init = true;
       openTodos = openTodosResponse.todos;
       openTodosApiMore = openTodosResponse.apiMore;
       closedTodos = closedTodosResponse.todos;
@@ -166,7 +164,7 @@ class TodosState extends State<Todos> {
                 leading: new Icon(Icons.exit_to_app),
                 title: new Text('Log out'),
                 onTap: () {
-                  logOut(context);
+                  Provider.of<AuthRepository>(context).logOut();
                 },
               ),
             ],
@@ -178,6 +176,12 @@ class TodosState extends State<Todos> {
 
   @override
   Widget build(BuildContext context) {
+
+    // Temporary until todo lists get moved into a provider.
+    if ( ! this.init ) {
+      getInitialData();
+    }
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
