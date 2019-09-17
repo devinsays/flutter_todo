@@ -17,9 +17,22 @@ class AuthRepository with ChangeNotifier {
   String get name => _name;
   String get notification => _notification;
 
+  initAuthProvider() async {
+    String token = await getToken();
+    if (token != null) {
+      _token = token;
+      _status = Status.Authenticated;
+    } else {
+      _status = Status.Unauthenticated;
+    }
+    notifyListeners();
+  }
+
   Future<bool> login(String email, String password) async {
 
     _status = Status.Authenticating;
+    _notification = '';
+    notifyListeners();
 
     final url = "https://laravelreact.com/api/v1/auth/login";
 
@@ -28,11 +41,12 @@ class AuthRepository with ChangeNotifier {
       'password': password,
     };
 
-    final response = await http.post( url, body: body, );
+    final response = await http.post(url, body: body,);
 
     if (response.statusCode == 200) {
       Object apiResponse = json.decode(response.body);
-      _status = Status.Authenticating;
+      _status = Status.Authenticated;
+      print('_status updated to $_status');
       await storeUserData(apiResponse);
       notifyListeners();
       return true;
@@ -47,6 +61,7 @@ class AuthRepository with ChangeNotifier {
 
     _status = Status.Unauthenticated;
     _notification = 'Server error.';
+    notifyListeners();
     return false;
   }
 
@@ -126,13 +141,14 @@ class AuthRepository with ChangeNotifier {
     await storage.setString('name', apiResponse['user']['name']);
   }
 
-  getToken() async {
+  Future<String> getToken() async {
     SharedPreferences storage = await SharedPreferences.getInstance();
     String token = storage.getString('token');
     return token;
   }
 
   Future logOut(BuildContext context, [bool tokenExpired = false]) async {
+    print('logOut');
     _status = Status.Unauthenticated;
     SharedPreferences storage = await SharedPreferences.getInstance();
     await storage.clear();

@@ -9,15 +9,18 @@ import 'package:flutter_todo/views/todos.dart';
 
 void main() {
   runApp(
-    MaterialApp(
-      initialRoute: '/',
-      routes: {
-        '/': (context) => Router(),
-        '/login': (context) => LogIn(),
-        '/register': (context) => Register(),
-        '/password-reset': (context) => PasswordReset(),
-        '/todos': (context) => Todos(),
-      },
+    ChangeNotifierProvider(
+      builder: (context) => AuthRepository(),
+      child: MaterialApp(
+        initialRoute: '/',
+        routes: {
+          '/': (context) => Router(),
+          '/login': (context) => LogIn(),
+          '/register': (context) => Register(),
+          '/password-reset': (context) => PasswordReset(),
+          '/todos': (context) => Todos(),
+        },
+      ),
     ),
   );
 }
@@ -25,10 +28,37 @@ void main() {
 class Router extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    print('Router route.');
+    
+    return Consumer<AuthRepository>(
+      builder: (context, user, child) {
+        print(user);
+        print(user.status);
+        switch (user.status) {
+            case Status.Uninitialized:
+              return Loading();
+            case Status.Unauthenticated:
+              return LogIn();
+            case Status.Authenticating:
+              return LogIn();
+            case Status.Authenticated:
+              return Todos();
+            default:
+              return LogIn();
+          }
+      },
+    );
+
+
+
+
     return ChangeNotifierProvider(
       builder: (_) => AuthRepository(),
-      child: Consumer(
+      child: Consumer<AuthRepository>(
         builder: (context, AuthRepository user, _) {
+          print(user);
+          print(user.status);
           switch (user.status) {
             case Status.Uninitialized:
               return Loading();
