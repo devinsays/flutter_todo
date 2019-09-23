@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_todo/views/loading.dart';
+
 import 'package:flutter_todo/providers/auth.dart';
+import 'package:flutter_todo/providers/todo.dart';
+
+import 'package:flutter_todo/views/loading.dart';
 import 'package:flutter_todo/views/login.dart';
 import 'package:flutter_todo/views/register.dart';
 import 'package:flutter_todo/views/password_reset.dart';

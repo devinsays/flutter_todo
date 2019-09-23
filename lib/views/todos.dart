@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
+import 'package:flutter_todo/providers/todo.dart';
 import 'package:flutter_todo/utilities/api.dart';
 import 'package:flutter_todo/models/todo.dart';
 import 'package:flutter_todo/widgets/todo_list.dart';
@@ -29,18 +30,8 @@ class TodosState extends State<Todos> {
   // Active tab.
   String activeTab = 'open';
 
-  void getInitialData() async {
-    TodoResponse openTodosResponse = await getTodos(context, 'open');
-    TodoResponse closedTodosResponse = await getTodos(context, 'closed');
-
-    setState(() {
-      init = true;
-      openTodos = openTodosResponse.todos;
-      openTodosApiMore = openTodosResponse.apiMore;
-      closedTodos = closedTodosResponse.todos;
-      closedTodosApiMore = closedTodosResponse.apiMore;
-      loading = false;
-    });
+  void getInitialData(context) async {
+    Provider.of<TodoProvider>(context).getInitialData(context);
   }
 
   toggleTodo(BuildContext context, Todo todo) async {
@@ -179,8 +170,21 @@ class TodosState extends State<Todos> {
 
     // Temporary until todo lists get moved into a provider.
     if ( ! this.init ) {
-      getInitialData();
+      getInitialData(context);
     }
+
+    // print(Provider.of<TodoProvider>(context).initialized);
+    // print(Provider.of<TodoProvider>(context).loading);
+
+    return Consumer<TodoProvider>(
+      builder: (context, provider, child) => Text(
+        provider.loading ?? 'Loading' ?? 'Not Loading',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.red,
+        ),
+      ),
+    );
 
     return DefaultTabController(
       length: 2,
