@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'dart:collection';
 import 'package:provider/provider.dart';
 
-import 'package:flutter_todo/models/auth.dart';
+import 'package:flutter_todo/providers/auth.dart';
 import 'package:flutter_todo/models/todo.dart';
 import 'package:flutter_todo/widgets/todo_response.dart';
 
@@ -20,7 +20,7 @@ import 'package:flutter_todo/widgets/todo_response.dart';
     url = 'https://laravelreact.com/api/v1/todo?status=$status';
   }
 
-  String token = await Provider.of<AuthRepository>(context).getToken();
+  String token = await Provider.of<AuthProvider>(context).getToken();
 
   final response = await http.get(
     url,
@@ -30,7 +30,7 @@ import 'package:flutter_todo/widgets/todo_response.dart';
   );
 
   if (response.statusCode == 401) {
-    await Provider.of<AuthRepository>(context).logOut(true);
+    await Provider.of<AuthProvider>(context).logOut(true);
     return TodoResponse([], null);
   }
 
@@ -46,7 +46,7 @@ import 'package:flutter_todo/widgets/todo_response.dart';
 toggleTodoStatus(context, int id, String status) async {
   final url = 'https://laravelreact.com/api/v1/todo/$id';
 
-  String token = await Provider.of<AuthRepository>(context).getToken();
+  String token = await Provider.of<AuthProvider>(context).getToken();
 
   Map<String, String> body = {
     'status': status,
@@ -61,7 +61,7 @@ toggleTodoStatus(context, int id, String status) async {
   );
 
   if (response.statusCode == 401) {
-    await Provider.of<AuthRepository>(context).logOut(true);
+    await Provider.of<AuthProvider>(context).logOut(true);
     return false;
   }
 
@@ -71,7 +71,7 @@ toggleTodoStatus(context, int id, String status) async {
 addTodo(context, String text) async {
   final url = 'https://laravelreact.com/api/v1/todo';
 
-  String token = await Provider.of<AuthRepository>(context).getToken();
+  String token = await Provider.of<AuthProvider>(context).getToken();
 
   Map<String, String> body = {
     'value': text,
@@ -86,7 +86,7 @@ addTodo(context, String text) async {
   );
 
   if (response.statusCode == 401) {
-    await Provider.of<AuthRepository>(context).logOut(true);
+    await Provider.of<AuthProvider>(context).logOut(true);
     return false;
   }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_todo/views/loading.dart';
-import 'package:flutter_todo/models/auth.dart';
+import 'package:flutter_todo/providers/auth.dart';
 import 'package:flutter_todo/views/login.dart';
 import 'package:flutter_todo/views/register.dart';
 import 'package:flutter_todo/views/password_reset.dart';
@@ -10,7 +10,7 @@ import 'package:flutter_todo/views/todos.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      builder: (context) => AuthRepository(),
+      builder: (context) => AuthProvider(),
       child: MaterialApp(
         initialRoute: '/',
         routes: {
@@ -28,7 +28,7 @@ void main() {
 class Router extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthRepository>(
+    return Consumer<AuthProvider>(
       builder: (context, user, child) {
         switch (user.status) {
           case Status.Uninitialized:

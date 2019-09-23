@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 
-import 'package:flutter_todo/models/auth.dart';
+import 'package:flutter_todo/providers/auth.dart';
 import 'package:flutter_todo/widgets/screen_arguments.dart';
 
 class LogIn extends StatelessWidget {
@@ -63,7 +63,7 @@ class LogInFormState extends State<LogInForm> {
   Future<void> submit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
-      await Provider.of<AuthRepository>(context).login(email, password);
+      await Provider.of<AuthProvider>(context).login(email, password);
     }
   }
 
@@ -101,7 +101,7 @@ class LogInFormState extends State<LogInForm> {
             ),
           ),
           SizedBox(height: 10.0),
-          Consumer<AuthRepository>(
+          Consumer<AuthProvider>(
             builder: (context, provider, child) => Text(
               provider.notification ?? this.message ?? '',
               textAlign: TextAlign.center,

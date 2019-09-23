@@ -5,7 +5,7 @@ import 'dart:convert';
 
 enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated }
 
-class AuthRepository with ChangeNotifier {
+class AuthProvider with ChangeNotifier {
 
   Status _status = Status.Uninitialized;
   String _token;

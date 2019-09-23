@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
-import 'package:flutter_todo/models/auth.dart';
+import 'package:flutter_todo/providers/auth.dart';
 
 class Loading extends StatelessWidget {
 
   initAuthProvider(context) async {
-    Provider.of<AuthRepository>(context).initAuthProvider();
+    Provider.of<AuthProvider>(context).initAuthProvider();
   }
 
   @override
