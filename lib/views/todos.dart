@@ -30,10 +30,6 @@ class TodosState extends State<Todos> {
   // Active tab.
   String activeTab = 'open';
 
-  void getInitialData(context) async {
-    Provider.of<TodoProvider>(context).getInitialData(context);
-  }
-
   toggleTodo(BuildContext context, Todo todo) async {
     List<Todo> openTodosModified = this.openTodos;
     List<Todo> closedTodosModified = this.closedTodos;
@@ -84,6 +80,9 @@ class TodosState extends State<Todos> {
   }
 
   void loadMore() async {
+
+    /*
+
     // Set apiMore based on the activeTab.
     String apiMore = (activeTab == 'open') ? openTodosApiMore : closedTodosApiMore;
 
@@ -114,6 +113,8 @@ class TodosState extends State<Todos> {
 
       loading = false;
     });
+
+    */
   }
 
   void showAddTaskSheet(context) {
@@ -169,22 +170,15 @@ class TodosState extends State<Todos> {
   Widget build(BuildContext context) {
 
     // Temporary until todo lists get moved into a provider.
-    if ( ! this.init ) {
-      getInitialData(context);
+    String token = Provider.of<AuthProvider>(context).token;
+    print(token);
+
+    if ( ! Provider.of<TodoProvider>(context).initialized ) {
+      print('Get initial data');
+      Provider.of<TodoProvider>(context).getInitialData(token);
     }
-
-    // print(Provider.of<TodoProvider>(context).initialized);
-    // print(Provider.of<TodoProvider>(context).loading);
-
-    return Consumer<TodoProvider>(
-      builder: (context, provider, child) => Text(
-        provider.loading ?? 'Loading' ?? 'Not Loading',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: Colors.red,
-        ),
-      ),
-    );
+    
+    print(Provider.of<TodoProvider>(context).loading);
 
     return DefaultTabController(
       length: 2,

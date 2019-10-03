@@ -24,9 +24,11 @@ class TodoProvider with ChangeNotifier {
   String get openTodosApiMore => _openTodosApiMore;
   String get closedTodosApiMore => _closedTodosApiMore;
 
-  getInitialData(context) async {
+  getInitialData(String token) async {
 
-    // TodoResponse openTodosResponse = await getTodos(context, 'open');
+    TodoResponse openTodosResponse = await getTodos(token, 'open');
+
+    print(openTodosResponse);
     // TodoResponse closedTodosResponse = await getTodos(context, 'closed');
 
     _initialized = true;

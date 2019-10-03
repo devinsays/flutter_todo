@@ -13,14 +13,12 @@ import 'package:flutter_todo/widgets/todo_response.dart';
 /*
  * Returns a list of todos.
  */
- Future<TodoResponse> getTodos(BuildContext context, String status, { String url = '' }) async {
+ Future<TodoResponse> getTodos(String token, String status, { String url = '' }) async {
   
   // Defaults to the first page if no url is set.
   if ('' == url) {
     url = 'https://laravelreact.com/api/v1/todo?status=$status';
   }
-
-  String token = await Provider.of<AuthProvider>(context).getToken();
 
   final response = await http.get(
     url,
@@ -30,7 +28,8 @@ import 'package:flutter_todo/widgets/todo_response.dart';
   );
 
   if (response.statusCode == 401) {
-    await Provider.of<AuthProvider>(context).logOut(true);
+    // await Provider.of<AuthProvider>(context).logOut(true);
+    print('401 response');
     return TodoResponse([], null);
   }
 

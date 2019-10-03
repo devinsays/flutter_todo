@@ -39,7 +39,10 @@ class Router extends StatelessWidget {
           case Status.Unauthenticated:
             return LogIn();
           case Status.Authenticated:
-            return Todos();
+            return ChangeNotifierProvider(
+              builder: (context) => TodoProvider(),
+              child: Todos(),
+            );
           default:
             return LogIn();
         }
