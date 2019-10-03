@@ -10,84 +10,94 @@ import 'package:flutter_todo/providers/auth.dart';
 import 'package:flutter_todo/models/todo.dart';
 import 'package:flutter_todo/widgets/todo_response.dart';
 
-/*
- * Returns a list of todos.
- */
- Future<TodoResponse> getTodos(String token, String status, { String url = '' }) async {
-  
-  // Defaults to the first page if no url is set.
-  if ('' == url) {
-    url = 'https://laravelreact.com/api/v1/todo?status=$status';
+class ApiService {
+
+  AuthProvider authProvider;
+  String token;
+
+  // The AuthProvider is passed in when this class instantiated.
+  // This provides access to the user token required for API calls.
+  // It also allows us to log out a user when their token expires.
+  ApiService(AuthProvider authProvider) {
+    this.authProvider = authProvider;
+    this.token = authProvider.token;
   }
 
-  final response = await http.get(
-    url,
-    headers: {
-      HttpHeaders.authorizationHeader: 'Bearer $token'
-    },
-  );
+  /*
+  * Returns a list of todos.
+  */
+  Future<TodoResponse> getTodos(String status, { String url = '' }) async {
+    
+    // Defaults to the first page if no url is set.
+    if ('' == url) {
+      url = 'https://laravelreact.com/api/v1/todo?status=$status';
+    }
 
-  if (response.statusCode == 401) {
-    // await Provider.of<AuthProvider>(context).logOut(true);
-    print('401 response');
-    return TodoResponse([], null);
+    final response = await http.get(
+      url,
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token'
+      },
+    );
+
+    if (response.statusCode == 401) {
+      await authProvider.logOut(true);
+      return TodoResponse([], null);
+    }
+
+    LinkedHashMap<String, dynamic> apiResponse = json.decode(response.body);
+    List<dynamic> data = apiResponse['data'];
+
+    List<Todo> todos = todoFromJson(json.encode(data));
+    String next = apiResponse['links']['next'];
+
+    return TodoResponse(todos, next);
   }
 
-  LinkedHashMap<String, dynamic> apiResponse = json.decode(response.body);
-  List<dynamic> data = apiResponse['data'];
+  toggleTodoStatus(int id, String status) async {
+    final url = 'https://laravelreact.com/api/v1/todo/$id';
 
-  List<Todo> todos = todoFromJson(json.encode(data));
-  String next = apiResponse['links']['next'];
+    Map<String, String> body = {
+      'status': status,
+    };
 
-  return TodoResponse(todos, next);
-}
+    final response = await http.patch(
+      url,
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token'
+      },
+      body: body
+    );
 
-toggleTodoStatus(context, int id, String status) async {
-  final url = 'https://laravelreact.com/api/v1/todo/$id';
+    if (response.statusCode == 401) {
+      await authProvider.logOut(true);
+      return false;
+    }
 
-  String token = await Provider.of<AuthProvider>(context).getToken();
-
-  Map<String, String> body = {
-    'status': status,
-  };
-
-  final response = await http.patch(
-    url,
-    headers: {
-      HttpHeaders.authorizationHeader: 'Bearer $token'
-    },
-    body: body
-  );
-
-  if (response.statusCode == 401) {
-    await Provider.of<AuthProvider>(context).logOut(true);
-    return false;
+    return true;
   }
 
-  return true;
-}
+  addTodo(context, String text) async {
+    final url = 'https://laravelreact.com/api/v1/todo';
 
-addTodo(context, String text) async {
-  final url = 'https://laravelreact.com/api/v1/todo';
+    Map<String, String> body = {
+      'value': text,
+    };
 
-  String token = await Provider.of<AuthProvider>(context).getToken();
+    final response = await http.post(
+      url,
+      headers: {
+        HttpHeaders.authorizationHeader: 'Bearer $token'
+      },
+      body: body
+    );
 
-  Map<String, String> body = {
-    'value': text,
-  };
+    if (response.statusCode == 401) {
+      await authProvider.logOut(true);
+      return false;
+    }
 
-  final response = await http.post(
-    url,
-    headers: {
-      HttpHeaders.authorizationHeader: 'Bearer $token'
-    },
-    body: body
-  );
-
-  if (response.statusCode == 401) {
-    await Provider.of<AuthProvider>(context).logOut(true);
-    return false;
+    return true;
   }
 
-  return true;
 }

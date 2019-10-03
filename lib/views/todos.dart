@@ -31,6 +31,7 @@ class TodosState extends State<Todos> {
   String activeTab = 'open';
 
   toggleTodo(BuildContext context, Todo todo) async {
+    /*
     List<Todo> openTodosModified = this.openTodos;
     List<Todo> closedTodosModified = this.closedTodos;
 
@@ -70,6 +71,7 @@ class TodosState extends State<Todos> {
     }
 
     Scaffold.of(context).showSnackBar(statusMessage);
+    */
   }
 
   Widget getStatusMessage(String message) {
@@ -127,6 +129,7 @@ class TodosState extends State<Todos> {
   }
 
   void addNewTodo(BuildContext context, String text) async {
+    /*
     bool response = await addTodo(context, text);
 
     if (response) {
@@ -143,6 +146,7 @@ class TodosState extends State<Todos> {
     }
 
     Navigator.pop(context);
+    */
   }
 
   void displayProfileMenu(context) {
@@ -168,17 +172,6 @@ class TodosState extends State<Todos> {
 
   @override
   Widget build(BuildContext context) {
-
-    // Temporary until todo lists get moved into a provider.
-    String token = Provider.of<AuthProvider>(context).token;
-    print(token);
-
-    if ( ! Provider.of<TodoProvider>(context).initialized ) {
-      print('Get initial data');
-      Provider.of<TodoProvider>(context).getInitialData(token);
-    }
-    
-    print(Provider.of<TodoProvider>(context).loading);
 
     return DefaultTabController(
       length: 2,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_todo/providers/auth.dart';
 import 'package:flutter_todo/utilities/api.dart';
 import 'package:flutter_todo/models/todo.dart';
 import 'package:flutter_todo/widgets/todo_response.dart';
@@ -17,6 +18,10 @@ class TodoProvider with ChangeNotifier {
   String _openTodosApiMore; 
   String _closedTodosApiMore;
 
+  // API Service
+  ApiService apiService;
+
+  // Provides access to private variables.
   bool get initialized => _initialized;
   bool get loading => _loading;
   List<Todo> get openTodos => _openTodos;
@@ -24,20 +29,24 @@ class TodoProvider with ChangeNotifier {
   String get openTodosApiMore => _openTodosApiMore;
   String get closedTodosApiMore => _closedTodosApiMore;
 
-  getInitialData(String token) async {
+  // AuthProvider is required to instaniate our ApiService.
+  // This gives the service access to the user token and provider methods.
+  TodoProvider(AuthProvider authProvider) {
+    this.apiService = ApiService(authProvider);
+    init();
+  }
 
-    TodoResponse openTodosResponse = await getTodos(token, 'open');
+  init() async {
 
-    print(openTodosResponse);
-    // TodoResponse closedTodosResponse = await getTodos(context, 'closed');
+    TodoResponse openTodosResponse = await apiService.getTodos('open');
+    TodoResponse closedTodosResponse = await apiService.getTodos('closed');
 
     _initialized = true;
     _loading = false;
-
-    // _openTodos = openTodosResponse.todos;
-    // _openTodosApiMore = openTodosResponse.apiMore;
-    // _closedTodos = closedTodosResponse.todos;
-    // _closedTodosApiMore = closedTodosResponse.apiMore;
+    _openTodos = openTodosResponse.todos;
+    _openTodosApiMore = openTodosResponse.apiMore;
+    _closedTodos = closedTodosResponse.todos;
+    _closedTodosApiMore = closedTodosResponse.apiMore;
 
     notifyListeners();
   }
