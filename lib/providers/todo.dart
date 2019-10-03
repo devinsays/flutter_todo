@@ -51,4 +51,27 @@ class TodoProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  addTodo(String text) async {
+
+    // Posts the new item to our API.
+    bool response = await apiService.addTodo(text);
+
+    // If API update was successful, we add the item to _openTodos.
+    if (response) {
+      Todo todo = new Todo();
+      todo.value = text;
+      todo.status = 'open';
+
+      List<Todo> openTodosModified = _openTodos;
+      openTodosModified.add(todo);
+
+      _openTodos = openTodosModified;
+      notifyListeners();
+
+      return true;
+    }
+
+    return false;
+  }
+
 }

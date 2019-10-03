@@ -31,7 +31,6 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<bool> login(String email, String password) async {
-
     _status = Status.Authenticating;
     _notification = '';
     notifyListeners();
@@ -46,9 +45,9 @@ class AuthProvider with ChangeNotifier {
     final response = await http.post(url, body: body,);
 
     if (response.statusCode == 200) {
-      Object apiResponse = json.decode(response.body);
+      Map<String, dynamic> apiResponse = json.decode(response.body);
       _status = Status.Authenticated;
-      print('_status updated to $_status');
+      _token = apiResponse['access_token'];
       await storeUserData(apiResponse);
       notifyListeners();
       return true;

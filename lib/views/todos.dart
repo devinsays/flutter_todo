@@ -15,17 +15,6 @@ class Todos extends StatefulWidget {
 }
 
 class TodosState extends State<Todos> {
-  bool init = false;
-  List<Todo> openTodos = List<Todo>();
-  List<Todo> closedTodos = List<Todo>();
-
-  // The API is paginated. If there are more results we store
-  // the API url in order to lazily load them later.
-  String openTodosApiMore; 
-  String closedTodosApiMore;
-
-  // Where new items are being actively loaded.
-  bool loading = true;
 
   // Active tab.
   String activeTab = 'open';
@@ -120,10 +109,15 @@ class TodosState extends State<Todos> {
   }
 
   void showAddTaskSheet(context) {
+
+    // The addTodo function is passed down to the AddTodo widget
+    // because modals do not have access to the Provider.
+    Function addTodo = Provider.of<TodoProvider>(context).addTodo;
+
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return AddTodo();
+        return AddTodo(addTodo);
       },
     );
   }
@@ -173,6 +167,9 @@ class TodosState extends State<Todos> {
   @override
   Widget build(BuildContext context) {
 
+    final openTodos = Provider.of<TodoProvider>(context).openTodos;
+    final closedTodos = Provider.of<TodoProvider>(context).closedTodos;
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -214,4 +211,5 @@ class TodosState extends State<Todos> {
       ),
     );
   }
+
 }

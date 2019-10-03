@@ -23,6 +23,8 @@ class ApiService {
     this.token = authProvider.token;
   }
 
+  final String api = 'https://laravelreact.com/api/v1/todo';
+
   /*
   * Returns a list of todos.
   */
@@ -30,7 +32,7 @@ class ApiService {
     
     // Defaults to the first page if no url is set.
     if ('' == url) {
-      url = 'https://laravelreact.com/api/v1/todo?status=$status';
+      url = "$api?status=$status";
     }
 
     final response = await http.get(
@@ -45,7 +47,7 @@ class ApiService {
       return TodoResponse([], null);
     }
 
-    LinkedHashMap<String, dynamic> apiResponse = json.decode(response.body);
+    Map<String, dynamic> apiResponse = json.decode(response.body);
     List<dynamic> data = apiResponse['data'];
 
     List<Todo> todos = todoFromJson(json.encode(data));
@@ -77,15 +79,14 @@ class ApiService {
     return true;
   }
 
-  addTodo(context, String text) async {
-    final url = 'https://laravelreact.com/api/v1/todo';
+  addTodo(String text) async {
 
     Map<String, String> body = {
       'value': text,
     };
 
     final response = await http.post(
-      url,
+      api,
       headers: {
         HttpHeaders.authorizationHeader: 'Bearer $token'
       },
