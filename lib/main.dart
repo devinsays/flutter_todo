@@ -30,6 +30,9 @@ void main() {
 class Router extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return Consumer<AuthProvider>(
       builder: (context, user, child) {
         switch (user.status) {
@@ -38,24 +41,14 @@ class Router extends StatelessWidget {
           case Status.Unauthenticated:
             return LogIn();
           case Status.Authenticated:
-            return TodosWithProvider();
+            return ChangeNotifierProvider(
+              builder: (context) => TodoProvider(authProvider),
+              child: Todos(),
+            );
           default:
             return LogIn();
         }
       },
     );
   }
-}
-
-class TodosWithProvider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    print('TodosWithProvider Built');
-    return ChangeNotifierProvider(
-              builder: (context) => TodoProvider(authProvider),
-              child: Todos(),
-            );
-  }
-
 }

@@ -36,7 +36,7 @@ class TodoProvider with ChangeNotifier {
     init();
   }
 
-  init() async {
+  void init() async {
 
     TodoResponse openTodosResponse = await apiService.getTodos('open');
     TodoResponse closedTodosResponse = await apiService.getTodos('closed');
@@ -51,7 +51,7 @@ class TodoProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  addTodo(String text) async {
+  Future<bool> addTodo(String text) async {
 
     // Posts the new item to our API.
     bool response = await apiService.addTodo(text);
@@ -72,6 +72,35 @@ class TodoProvider with ChangeNotifier {
     }
 
     return false;
+  }
+
+  Future<bool> toggleTodo(Todo todo) async {
+    List<Todo> openTodosModified = _openTodos;
+    List<Todo> closedTodosModified = _closedTodos;
+
+    // Store the todo status.
+    String statusModified = todo.status == 'open' ? 'closed' : 'open';
+
+    // Updates the status via an API call.
+    bool updated = await apiService.toggleTodoStatus(todo.id, statusModified);
+
+    if (statusModified == 'open') {
+      openTodosModified.add(todo);
+      closedTodosModified.remove(todo);
+    }
+
+    if (statusModified == 'closed') {
+      closedTodosModified.add(todo);
+      openTodosModified.remove(todo);
+    }
+
+    if (updated) {
+      _openTodos = openTodosModified;
+      _closedTodos = closedTodosModified;
+      notifyListeners();
+    }
+
+    return updated;
   }
 
 }

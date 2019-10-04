@@ -20,47 +20,25 @@ class TodosState extends State<Todos> {
   String activeTab = 'open';
 
   toggleTodo(BuildContext context, Todo todo) async {
-    /*
-    List<Todo> openTodosModified = this.openTodos;
-    List<Todo> closedTodosModified = this.closedTodos;
 
-    // Store the todo status.
-    String statusOriginal = todo.status;
-    String statusModified = todo.status == 'open' ? 'closed' : 'open';
-
-    // Set todo to 'processing' in state.
-    setState(() => todo.status = 'processing');
-
-    // Updates the status via an API call.
-    bool updated = await toggleTodoStatus(context, todo.id, statusModified);
+    bool updated = await Provider.of<TodoProvider>(context).toggleTodo(todo);
 
     // Default status message.
     Widget statusMessage = getStatusMessage('Error has occured.');
-  
-    if (statusModified == 'open') {
-      openTodosModified.add(todo);
-      closedTodosModified.remove(todo);
-      statusMessage = getStatusMessage('Task opened.');
-    }
 
-    if (statusModified == 'closed') {
-      closedTodosModified.add(todo);
-      openTodosModified.remove(todo);
-      statusMessage = getStatusMessage('Task closed.');
-    }
+    if (true == updated) {
+      String statusModified = todo.status == 'open' ? 'closed' : 'open';
 
-    if (updated) {
-      setState(() {
-        openTodos = openTodosModified;
-        closedTodos = closedTodosModified;
-        todo.status = statusModified;
-      });
-    } else {
-      todo.status = statusOriginal;
+      if (statusModified == 'open') {
+        statusMessage = getStatusMessage('Task opened.');
+      }
+
+      if (statusModified == 'closed') {
+        statusMessage = getStatusMessage('Task closed.');
+      }
     }
 
     Scaffold.of(context).showSnackBar(statusMessage);
-    */
   }
 
   Widget getStatusMessage(String message) {
@@ -120,27 +98,6 @@ class TodosState extends State<Todos> {
         return AddTodo(addTodo);
       },
     );
-  }
-
-  void addNewTodo(BuildContext context, String text) async {
-    /*
-    bool response = await addTodo(context, text);
-
-    if (response) {
-      Todo todo = new Todo();
-      todo.value = text;
-      todo.status = 'open';
-
-      List<Todo> openTodosModified = this.openTodos;
-      openTodosModified.add(todo);
-
-      setState(() {
-        openTodos = openTodosModified;
-      });
-    }
-
-    Navigator.pop(context);
-    */
   }
 
   void displayProfileMenu(context) {
