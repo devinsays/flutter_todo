@@ -7,7 +7,6 @@ import 'package:flutter_todo/widgets/todo_response.dart';
 
 class TodoProvider with ChangeNotifier {
   bool _initialized = false;
-  bool _loading = true;
 
   // Stores separate lists for open and closed todos.
   List<Todo> _openTodos = List<Todo>();
@@ -23,7 +22,6 @@ class TodoProvider with ChangeNotifier {
 
   // Provides access to private variables.
   bool get initialized => _initialized;
-  bool get loading => _loading;
   List<Todo> get openTodos => _openTodos;
   List<Todo> get closedTodos => _closedTodos;
   String get openTodosApiMore => _openTodosApiMore;
@@ -37,12 +35,10 @@ class TodoProvider with ChangeNotifier {
   }
 
   void init() async {
-
     TodoResponse openTodosResponse = await apiService.getTodos('open');
     TodoResponse closedTodosResponse = await apiService.getTodos('closed');
 
     _initialized = true;
-    _loading = false;
     _openTodos = openTodosResponse.todos;
     _openTodosApiMore = openTodosResponse.apiMore;
     _closedTodos = closedTodosResponse.todos;
@@ -52,7 +48,6 @@ class TodoProvider with ChangeNotifier {
   }
 
   Future<bool> addTodo(String text) async {
-
     // Posts the new item to our API.
     bool response = await apiService.addTodo(text);
 
@@ -78,19 +73,30 @@ class TodoProvider with ChangeNotifier {
     List<Todo> openTodosModified = _openTodos;
     List<Todo> closedTodosModified = _closedTodos;
 
-    // Store the todo status.
+    // Get current status in case there's an error and it can't be set.
+    String status = todo.status;
+
+    // Get the new status for the the todo.
     String statusModified = todo.status == 'open' ? 'closed' : 'open';
+
+    // Set the todo status to processing while we wait for the API call to complete.
+    todo.status = 'processing';
+    notifyListeners();
 
     // Updates the status via an API call.
     bool updated = await apiService.toggleTodoStatus(todo.id, statusModified);
 
+    // Modify the todo with the new status.
+    Todo modifiedTodo = todo;
+    modifiedTodo.status = statusModified;
+
     if (statusModified == 'open') {
-      openTodosModified.add(todo);
+      openTodosModified.add(modifiedTodo);
       closedTodosModified.remove(todo);
     }
 
     if (statusModified == 'closed') {
-      closedTodosModified.add(todo);
+      closedTodosModified.add(modifiedTodo);
       openTodosModified.remove(todo);
     }
 
@@ -98,9 +104,44 @@ class TodoProvider with ChangeNotifier {
       _openTodos = openTodosModified;
       _closedTodos = closedTodosModified;
       notifyListeners();
+      return updated;
     }
 
+    // If API update failed, we set the status back to original state.
+    todo.status = status;
+    notifyListeners();
     return updated;
+  }
+
+  Future<void> loadMore(String activeTab) async {
+    // Set apiMore based on the activeTab.
+    String apiMore = (activeTab == 'open') ? _openTodosApiMore : _closedTodosApiMore;
+
+    // If there's no more items to load, return early.
+    if (apiMore == null) {
+      return;
+    }
+
+    // Make the API call to get more todos.
+    TodoResponse todosResponse = await apiService.getTodos(activeTab, url: apiMore);
+
+    // Get the current todos for the active tab.
+    List<Todo> currentTodos = (activeTab == 'open') ? _openTodos : _closedTodos;
+
+    // Combine current todos with new results from API.
+    List<Todo> allTodos = [...currentTodos, ...todosResponse.todos];
+
+    if (activeTab == 'open') {
+      _openTodos = allTodos;
+      _openTodosApiMore = todosResponse.apiMore;
+    }
+
+    if (activeTab == 'closed') {
+      _closedTodos = allTodos;
+      _closedTodosApiMore = todosResponse.apiMore;
+    }
+
+    notifyListeners();
   }
 
 }

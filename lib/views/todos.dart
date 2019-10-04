@@ -3,10 +3,8 @@ import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
 import 'package:flutter_todo/providers/todo.dart';
-import 'package:flutter_todo/utilities/api.dart';
 import 'package:flutter_todo/models/todo.dart';
 import 'package:flutter_todo/widgets/todo_list.dart';
-import 'package:flutter_todo/widgets/todo_response.dart';
 import 'package:flutter_todo/widgets/add_todo.dart';
 
 class Todos extends StatefulWidget {
@@ -16,10 +14,12 @@ class Todos extends StatefulWidget {
 
 class TodosState extends State<Todos> {
 
-  // Active tab.
+  bool loading = false;
   String activeTab = 'open';
 
   toggleTodo(BuildContext context, Todo todo) async {
+
+    String statusModified = todo.status == 'open' ? 'closed' : 'open';
 
     bool updated = await Provider.of<TodoProvider>(context).toggleTodo(todo);
 
@@ -27,8 +27,6 @@ class TodosState extends State<Todos> {
     Widget statusMessage = getStatusMessage('Error has occured.');
 
     if (true == updated) {
-      String statusModified = todo.status == 'open' ? 'closed' : 'open';
-
       if (statusModified == 'open') {
         statusMessage = getStatusMessage('Task opened.');
       }
@@ -50,40 +48,17 @@ class TodosState extends State<Todos> {
 
   void loadMore() async {
 
-    /*
-
-    // Set apiMore based on the activeTab.
-    String apiMore = (activeTab == 'open') ? openTodosApiMore : closedTodosApiMore;
-
-    // If we're already loading or there are no more items, return early.
-    if (loading || apiMore == null) {
+    // If we're already loading return early.
+    if (loading) {
       return;
     }
 
     setState(() { loading = true; });
 
-    // Get the current todos for the active tab.
-    List<Todo> currentTodos = (activeTab == 'open') ? openTodos : closedTodos;
+    // Loads more items in the activeTab.
+    await Provider.of<TodoProvider>(context).loadMore(activeTab);
 
-    // Make the API call to get more todos.
-    TodoResponse todosResponse = await getTodos(context, activeTab, url: apiMore);
-    List<Todo> allTodos = [...currentTodos, ...todosResponse.todos];
-
-    setState(() {
-      if (activeTab == 'open') {
-        openTodos = allTodos;
-        openTodosApiMore = todosResponse.apiMore;
-      }
-
-      if (activeTab == 'closed') {
-        closedTodos = allTodos;
-        closedTodosApiMore = todosResponse.apiMore;
-      }
-
-      loading = false;
-    });
-
-    */
+    setState(() { loading = false; });
   }
 
   void showAddTaskSheet(context) {
