@@ -1,14 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
-import 'dart:collection';
-import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
+import 'package:flutter_todo/classes/todo_response.dart';
 import 'package:flutter_todo/models/todo.dart';
-import 'package:flutter_todo/widgets/todo_response.dart';
 
 class ApiService {
 

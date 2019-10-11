@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
-import 'package:flutter_todo/utilities/api.dart';
+import 'package:flutter_todo/classes/todo_response.dart';
+import 'package:flutter_todo/services/api.dart';
 import 'package:flutter_todo/models/todo.dart';
-import 'package:flutter_todo/widgets/todo_response.dart';
 
 class TodoProvider with ChangeNotifier {
   bool _initialized = false;
