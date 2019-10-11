@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_todo/classes/exceptions.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
 import 'package:flutter_todo/classes/todo_response.dart';
@@ -7,6 +8,9 @@ import 'package:flutter_todo/models/todo.dart';
 
 class TodoProvider with ChangeNotifier {
   bool _initialized = false;
+
+  // AuthProvier
+  AuthProvider authProvider;
 
   // Stores separate lists for open and closed todos.
   List<Todo> _openTodos = List<Todo>();
@@ -47,12 +51,13 @@ class TodoProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> addTodo(String text) async {
-    // Posts the new item to our API.
-    bool response = await apiService.addTodo(text);
+  Future<void> addTodo(String text) async {
+    try {
+      // Posts the new item to our API.
+      await apiService.addTodo(text);
 
-    // If API update was successful, we add the item to _openTodos.
-    if (response) {
+      // If no exceptions were thrown by API Service,
+      // we add the item to _openTodos.
       Todo todo = new Todo();
       todo.value = text;
       todo.status = 'open';
@@ -62,11 +67,15 @@ class TodoProvider with ChangeNotifier {
 
       _openTodos = openTodosModified;
       notifyListeners();
-
-      return true;
     }
-
-    return false;
+    on AuthException {
+      // API returned a AuthException, so user is logged out.
+      await authProvider.logOut(true);
+    }
+    catch (Exception) {
+      // Additional error messaging could be added.
+      print(Exception);
+    }
   }
 
   Future<bool> toggleTodo(Todo todo) async {

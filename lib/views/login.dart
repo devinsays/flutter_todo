@@ -3,7 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
-import 'package:flutter_todo/widgets/screen_arguments.dart';
+import 'package:flutter_todo/classes/screen_arguments.dart';
 
 class LogIn extends StatelessWidget {
   @override

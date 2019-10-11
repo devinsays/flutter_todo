@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter_todo/providers/auth.dart';
+import 'package:flutter_todo/classes/exceptions.dart';
 import 'package:flutter_todo/classes/todo_response.dart';
 import 'package:flutter_todo/models/todo.dart';
 
@@ -40,6 +41,7 @@ class ApiService {
     );
 
     if (response.statusCode == 401) {
+      throw new AuthException( "401", "Unauthorized" ); 
       await authProvider.logOut(true);
       return TodoResponse([], null);
     }
@@ -69,6 +71,7 @@ class ApiService {
     );
 
     if (response.statusCode == 401) {
+      throw new AuthException( "401", "Unauthorized" ); 
       await authProvider.logOut(true);
       return false;
     }
@@ -91,11 +94,12 @@ class ApiService {
     );
 
     if (response.statusCode == 401) {
-      await authProvider.logOut(true);
-      return false;
+      throw new AuthException( "401", "Unauthorized" ); 
     }
 
-    return true;
+    print(response.statusCode);
+
+    // @TODO Catch other error statuses
   }
 
 }
