@@ -51,7 +51,7 @@ class TodoProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addTodo(String text) async {
+  Future<bool> addTodo(String text) async {
     try {
       // Posts the new item to our API.
       await apiService.addTodo(text);
@@ -67,6 +67,8 @@ class TodoProvider with ChangeNotifier {
 
       _openTodos = openTodosModified;
       notifyListeners();
+
+      return true;
     }
     on AuthException {
       // API returned a AuthException, so user is logged out.
@@ -76,6 +78,9 @@ class TodoProvider with ChangeNotifier {
       // Additional error messaging could be added.
       print(Exception);
     }
+
+    // @TODO Track if this causes issue on disposal.
+    return false;
   }
 
   Future<bool> toggleTodo(Todo todo) async {
