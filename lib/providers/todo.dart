@@ -63,7 +63,7 @@ class TodoProvider with ChangeNotifier {
       todo.status = 'open';
 
       List<Todo> openTodosModified = _openTodos;
-      openTodosModified.add(todo);
+      openTodosModified.insert(0, todo);
 
       _openTodos = openTodosModified;
       notifyListeners();
@@ -75,7 +75,6 @@ class TodoProvider with ChangeNotifier {
       await authProvider.logOut(true);
     }
     catch (Exception) {
-      // Additional error messaging could be added.
       print(Exception);
     }
 
@@ -98,7 +97,21 @@ class TodoProvider with ChangeNotifier {
     notifyListeners();
 
     // Updates the status via an API call.
-    bool updated = await apiService.toggleTodoStatus(todo.id, statusModified);
+    try {
+      await apiService.toggleTodoStatus(todo.id, statusModified);
+    }
+    on AuthException {
+      // API returned a AuthException, so user is logged out.
+      await authProvider.logOut(true);
+    }
+    catch (Exception) {
+      print(Exception);
+
+      // If API update failed, we set the status back to original state.
+      todo.status = status;
+      notifyListeners();
+      return false;
+    }
 
     // Modify the todo with the new status.
     Todo modifiedTodo = todo;
@@ -114,17 +127,11 @@ class TodoProvider with ChangeNotifier {
       openTodosModified.remove(todo);
     }
 
-    if (updated) {
-      _openTodos = openTodosModified;
-      _closedTodos = closedTodosModified;
-      notifyListeners();
-      return updated;
-    }
-
-    // If API update failed, we set the status back to original state.
-    todo.status = status;
+    _openTodos = openTodosModified;
+    _closedTodos = closedTodosModified;
     notifyListeners();
-    return updated;
+    return true;
+
   }
 
   Future<void> loadMore(String activeTab) async {
@@ -136,26 +143,35 @@ class TodoProvider with ChangeNotifier {
       return;
     }
 
-    // Make the API call to get more todos.
-    TodoResponse todosResponse = await apiService.getTodos(activeTab, url: apiMore);
+    try {
+      // Make the API call to get more todos.
+      TodoResponse todosResponse = await apiService.getTodos(activeTab, url: apiMore);
 
-    // Get the current todos for the active tab.
-    List<Todo> currentTodos = (activeTab == 'open') ? _openTodos : _closedTodos;
+      // Get the current todos for the active tab.
+      List<Todo> currentTodos = (activeTab == 'open') ? _openTodos : _closedTodos;
 
-    // Combine current todos with new results from API.
-    List<Todo> allTodos = [...currentTodos, ...todosResponse.todos];
+      // Combine current todos with new results from API.
+      List<Todo> allTodos = [...currentTodos, ...todosResponse.todos];
 
-    if (activeTab == 'open') {
-      _openTodos = allTodos;
-      _openTodosApiMore = todosResponse.apiMore;
+      if (activeTab == 'open') {
+        _openTodos = allTodos;
+        _openTodosApiMore = todosResponse.apiMore;
+      }
+
+      if (activeTab == 'closed') {
+        _closedTodos = allTodos;
+        _closedTodosApiMore = todosResponse.apiMore;
+      }
+
+      notifyListeners();
+    }
+    on AuthException {
+      // API returned a AuthException, so user is logged out.
+      await authProvider.logOut(true);
+    }
+    catch (Exception) {
+      print(Exception);
     }
 
-    if (activeTab == 'closed') {
-      _closedTodos = allTodos;
-      _closedTodosApiMore = todosResponse.apiMore;
-    }
-
-    notifyListeners();
   }
-
 }

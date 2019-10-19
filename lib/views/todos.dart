@@ -87,6 +87,7 @@ class TodosState extends State<Todos> {
                 title: new Text('Log out'),
                 onTap: () {
                   Provider.of<AuthProvider>(context).logOut();
+                  Navigator.pop(context);
                 },
               ),
             ],
