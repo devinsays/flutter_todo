@@ -1,5 +1,5 @@
 name: flutter_todo
-description: A simple to do project that uses a REST API.
+description: A to do project that uses a REST API.
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -11,7 +11,7 @@ description: A simple to do project that uses a REST API.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.2.0
+version: 0.3.0
 
 environment:
   sdk: ">=2.3.0 <3.0.0"
