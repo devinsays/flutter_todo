@@ -54,7 +54,6 @@ class TodoProvider with ChangeNotifier {
       notifyListeners();
     }
     on AuthException {
-      print(authProvider);
       // API returned a AuthException, so user is logged out.
       await authProvider.logOut(true);
     }
@@ -94,7 +93,7 @@ class TodoProvider with ChangeNotifier {
     List<Todo> openTodosModified = _openTodos;
     List<Todo> closedTodosModified = _closedTodos;
 
-    // Get current status in case there's an error and it can't be set.
+    // Get current status in case there's an error and new status isn't set.
     String status = todo.status;
 
     // Get the new status for the the todo.
