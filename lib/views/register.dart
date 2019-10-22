@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
-import 'package:flutter_todo/widgets/screen_arguments.dart';
+import 'package:flutter_todo/classes/screen_arguments.dart';
 
 class Register extends StatelessWidget {
   @override

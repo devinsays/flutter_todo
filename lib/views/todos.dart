@@ -36,7 +36,9 @@ class TodosState extends State<Todos> {
       }
     }
 
-    Scaffold.of(context).showSnackBar(statusMessage);
+    if (mounted) {
+      Scaffold.of(context).showSnackBar(statusMessage);
+    }
   }
 
   Widget getStatusMessage(String message) {
@@ -58,7 +60,10 @@ class TodosState extends State<Todos> {
     // Loads more items in the activeTab.
     await Provider.of<TodoProvider>(context).loadMore(activeTab);
 
-    setState(() { loading = false; });
+    // If auth token has expired, widget is disposed and state is not set.
+    if (mounted) {
+      setState(() { loading = false; });
+    }
   }
 
   void showAddTaskSheet(context) {
@@ -87,6 +92,7 @@ class TodosState extends State<Todos> {
                 title: new Text('Log out'),
                 onTap: () {
                   Provider.of<AuthProvider>(context).logOut();
+                  Navigator.pop(context);
                 },
               ),
             ],

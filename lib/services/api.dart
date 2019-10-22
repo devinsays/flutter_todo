@@ -1,14 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
-import 'dart:collection';
-import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
+import 'package:flutter_todo/classes/exceptions.dart';
+import 'package:flutter_todo/classes/todo_response.dart';
 import 'package:flutter_todo/models/todo.dart';
-import 'package:flutter_todo/widgets/todo_response.dart';
 
 class ApiService {
 
@@ -26,10 +24,22 @@ class ApiService {
   final String api = 'https://laravelreact.com/api/v1/todo';
 
   /*
-  * Returns a list of todos.
+  * Validates the response code from an API call.
+  * A 401 indicates that the token has expired.
+  * A 200 or 201 indicates the API call was successful.
   */
+  void validateResponseStatus(int status, int validStatus) {
+    if (status == 401) {
+      throw new AuthException( "401", "Unauthorized" ); 
+    }
+
+    if (status != validStatus) {
+      throw new ApiException( status.toString(), "API Error" ); 
+    }
+  }
+
+  // Returns a list of todos.
   Future<TodoResponse> getTodos(String status, { String url = '' }) async {
-    
     // Defaults to the first page if no url is set.
     if ('' == url) {
       url = "$api?status=$status";
@@ -42,10 +52,7 @@ class ApiService {
       },
     );
 
-    if (response.statusCode == 401) {
-      await authProvider.logOut(true);
-      return TodoResponse([], null);
-    }
+    validateResponseStatus(response.statusCode, 200);
 
     Map<String, dynamic> apiResponse = json.decode(response.body);
     List<dynamic> data = apiResponse['data'];
@@ -56,6 +63,7 @@ class ApiService {
     return TodoResponse(todos, next);
   }
 
+  // Toggles the status of a todo.
   toggleTodoStatus(int id, String status) async {
     final url = 'https://laravelreact.com/api/v1/todo/$id';
 
@@ -71,16 +79,11 @@ class ApiService {
       body: body
     );
 
-    if (response.statusCode == 401) {
-      await authProvider.logOut(true);
-      return false;
-    }
-
-    return true;
+    validateResponseStatus(response.statusCode, 200);
   }
 
+  // Adds a new todo.
   addTodo(String text) async {
-
     Map<String, String> body = {
       'value': text,
     };
@@ -93,12 +96,7 @@ class ApiService {
       body: body
     );
 
-    if (response.statusCode == 401) {
-      await authProvider.logOut(true);
-      return false;
-    }
-
-    return true;
+    validateResponseStatus(response.statusCode, 201);
   }
 
 }
