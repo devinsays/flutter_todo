@@ -35,23 +35,36 @@ class TodoProvider with ChangeNotifier {
   // This gives the service access to the user token and provider methods.
   TodoProvider(AuthProvider authProvider) {
     this.apiService = ApiService(authProvider);
+    this.authProvider = authProvider;
+
     init();
   }
 
   void init() async {
-    TodoResponse openTodosResponse = await apiService.getTodos('open');
-    TodoResponse closedTodosResponse = await apiService.getTodos('closed');
+    try {
+      TodoResponse openTodosResponse = await apiService.getTodos('open');
+      TodoResponse closedTodosResponse = await apiService.getTodos('closed');
 
-    _initialized = true;
-    _openTodos = openTodosResponse.todos;
-    _openTodosApiMore = openTodosResponse.apiMore;
-    _closedTodos = closedTodosResponse.todos;
-    _closedTodosApiMore = closedTodosResponse.apiMore;
+      _initialized = true;
+      _openTodos = openTodosResponse.todos;
+      _openTodosApiMore = openTodosResponse.apiMore;
+      _closedTodos = closedTodosResponse.todos;
+      _closedTodosApiMore = closedTodosResponse.apiMore;
 
-    notifyListeners();
+      notifyListeners();
+    }
+    on AuthException {
+      print(authProvider);
+      // API returned a AuthException, so user is logged out.
+      await authProvider.logOut(true);
+    }
+    catch (Exception) {
+      print(Exception);
+    }
   }
 
-  Future<bool> addTodo(String text) async {
+  Future<void> addTodo(String text) async {
+
     try {
       // Posts the new item to our API.
       await apiService.addTodo(text);
@@ -67,8 +80,6 @@ class TodoProvider with ChangeNotifier {
 
       _openTodos = openTodosModified;
       notifyListeners();
-
-      return true;
     }
     on AuthException {
       // API returned a AuthException, so user is logged out.
@@ -77,9 +88,6 @@ class TodoProvider with ChangeNotifier {
     catch (Exception) {
       print(Exception);
     }
-
-    // @TODO Track if this causes issue on disposal.
-    return false;
   }
 
   Future<bool> toggleTodo(Todo todo) async {
@@ -103,6 +111,7 @@ class TodoProvider with ChangeNotifier {
     on AuthException {
       // API returned a AuthException, so user is logged out.
       await authProvider.logOut(true);
+      return false;
     }
     catch (Exception) {
       print(Exception);

@@ -34,10 +34,8 @@ class _AddTodoState extends State<AddTodo> {
               new FlatButton(
                 child: new Text('Save'),
                 onPressed: () async {
-                  bool response = await widget.addTodo(textController.text);
-                  if (response) {
-                    Navigator.pop(context);
-                  }
+                  await widget.addTodo(textController.text);
+                  Navigator.pop(context);
                 },
               ),
             ],

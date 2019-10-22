@@ -29,10 +29,6 @@ class ApiService {
   * A 200 or 201 indicates the API call was successful.
   */
   void validateResponseStatus(int status, int validStatus) {
-
-    print(status);
-    print(validStatus);
-
     if (status == 401) {
       throw new AuthException( "401", "Unauthorized" ); 
     }
@@ -44,7 +40,6 @@ class ApiService {
 
   // Returns a list of todos.
   Future<TodoResponse> getTodos(String status, { String url = '' }) async {
-    
     // Defaults to the first page if no url is set.
     if ('' == url) {
       url = "$api?status=$status";
@@ -89,7 +84,6 @@ class ApiService {
 
   // Adds a new todo.
   addTodo(String text) async {
-
     Map<String, String> body = {
       'value': text,
     };
