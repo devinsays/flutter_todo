@@ -4,8 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:flutter_todo/providers/auth.dart';
 import 'package:flutter_todo/providers/todo.dart';
 import 'package:flutter_todo/models/todo.dart';
+import 'package:flutter_todo/styles/styles.dart';
+import 'package:flutter_todo/widgets/styled_flat_button.dart';
 import 'package:flutter_todo/widgets/todo_list.dart';
 import 'package:flutter_todo/widgets/add_todo.dart';
+
 
 class Todos extends StatefulWidget {
   @override

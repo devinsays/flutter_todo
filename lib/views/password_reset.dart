@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
 import 'package:flutter_todo/classes/screen_arguments.dart';
+import 'package:flutter_todo/styles/styles.dart';
+import 'package:flutter_todo/widgets/styled_flat_button.dart';
 
 class PasswordReset extends StatelessWidget {
   @override
@@ -14,7 +16,7 @@ class PasswordReset extends StatelessWidget {
       body: Center(
         child: Container(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
+            padding: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
             child: PasswordResetForm(),
           ),
         ),
@@ -84,10 +86,7 @@ class PasswordResetFormState extends State<PasswordResetForm> {
           Text(
             'Request Password Reset',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18.0,
-            ),
+            style: Styles.h1,
           ),
           SizedBox(height: 10.0),
           Text(
@@ -99,27 +98,14 @@ class PasswordResetFormState extends State<PasswordResetForm> {
           ),
           SizedBox(height: 30.0),
           TextFormField(
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              hintText: "Email",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
+            decoration: Styles.input.copyWith(
+              hintText: 'Email',
             ),
             validator: validateEmail,
           ),
           SizedBox(height: 15.0),
-          FlatButton(
-            child: const Text(
-              'Send Password Reset Email',
-              style: TextStyle(color: Colors.white),
-            ),
-            color: Colors.blue[500],
-            splashColor: Colors.blue[200],
-            shape: new RoundedRectangleBorder(
-              borderRadius: new BorderRadius.circular(30.0),
-            ),
-            padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          StyledFlatButton(
+            'Send Password Reset Email',
             onPressed: submit,
           ),
         ],

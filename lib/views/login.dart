@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
 import 'package:flutter_todo/classes/screen_arguments.dart';
+import 'package:flutter_todo/styles/styles.dart';
+import 'package:flutter_todo/widgets/styled_flat_button.dart';
 
 class LogIn extends StatelessWidget {
   @override
@@ -77,7 +79,6 @@ class LogInFormState extends State<LogInForm> {
 
   @override
   Widget build(BuildContext context) {
-
     final ScreenArguments args = ModalRoute.of(context).settings.arguments;
 
     if (args != null) {
@@ -85,7 +86,7 @@ class LogInFormState extends State<LogInForm> {
         message = args.message;
       });
     }
-    
+
     return Form(
       key: _formKey,
       child: Column(
@@ -95,70 +96,45 @@ class LogInFormState extends State<LogInForm> {
           Text(
             'Log in to the App',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18.0,
-            ),
+            style: Styles.h1,
           ),
           SizedBox(height: 10.0),
           Consumer<AuthProvider>(
             builder: (context, provider, child) => Text(
               provider.notification ?? this.message ?? '',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.red,
-              ),
+              style: TextStyle(color: Styles.errorColor),
             ),
           ),
           SizedBox(height: 30.0),
           TextFormField(
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              hintText: "Email",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
+            decoration: Styles.input.copyWith(
+              hintText: 'Email',
             ),
             validator: validateEmail,
           ),
           SizedBox(height: 15.0),
           TextFormField(
             obscureText: true,
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              hintText: "Password",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
+            decoration: Styles.input.copyWith(
+              hintText: 'Password',
             ),
             validator: validatePassword,
           ),
           SizedBox(height: 15.0),
-          FlatButton(
-            child: const Text(
-              'Sign In',
-              style: TextStyle(color: Colors.white),
-            ),
-            color: Colors.blue[500],
-            splashColor: Colors.blue[200],
-            shape: new RoundedRectangleBorder(
-              borderRadius: new BorderRadius.circular(30.0),
-            ),
-            padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          StyledFlatButton(
+            'Sign In',
             onPressed: submit,
           ),
           SizedBox(height: 20.0),
           Center(
             child: RichText(
-              text: new TextSpan(
+              text: TextSpan(
                 children: [
-                  new TextSpan(
-                    text: "Don't have an account? ",
-                    style: new TextStyle(color: Colors.black),
-                  ),
-                  new TextSpan(
+                  TextSpan(text: "Don't have an account? ", style: Styles.p),
+                  TextSpan(
                     text: 'Register.',
-                    style: new TextStyle(color: Colors.blue[500]),
+                    style: Styles.p.copyWith(color: Styles.linkColor),
                     recognizer: new TapGestureRecognizer()
                       ..onTap = () => gotoRegister(context),
                   ),
@@ -171,8 +147,8 @@ class LogInFormState extends State<LogInForm> {
             child: RichText(
               text: new TextSpan(
                 text: 'Forgot Your Password?',
-                style: new TextStyle(color: Colors.blue[500]),
-                recognizer: new TapGestureRecognizer()
+                style: Styles.p.copyWith(color: Styles.linkColor),
+                recognizer: TapGestureRecognizer()
                   ..onTap = () => gotoPasswordReset(context),
               ),
             ),

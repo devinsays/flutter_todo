@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
 import 'package:flutter_todo/classes/screen_arguments.dart';
+import 'package:flutter_todo/styles/styles.dart';
+import 'package:flutter_todo/widgets/styled_flat_button.dart';
 
 class Register extends StatelessWidget {
   @override
@@ -82,7 +84,8 @@ class RegisterFormState extends State<RegisterForm> {
   Future<void> submit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
-      response = await Provider.of<AuthProvider>(context).register(name, email, password, passwordConfirm);
+      response = await Provider.of<AuthProvider>(context)
+          .register(name, email, password, passwordConfirm);
       if (response['success']) {
         Navigator.pushReplacementNamed(
           context,
@@ -110,10 +113,7 @@ class RegisterFormState extends State<RegisterForm> {
           Text(
             'Register Account',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18.0,
-            ),
+            style: Styles.h1,
           ),
           SizedBox(height: 10.0),
           Text(
@@ -125,62 +125,37 @@ class RegisterFormState extends State<RegisterForm> {
           ),
           SizedBox(height: 30.0),
           TextFormField(
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              hintText: "Name",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
+            decoration: Styles.input.copyWith(
+              hintText: 'Name',
             ),
             validator: validateName,
           ),
           SizedBox(height: 15.0),
           TextFormField(
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              hintText: "Email",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
+            decoration: Styles.input.copyWith(
+              hintText: 'Email',
             ),
             validator: validateEmail,
           ),
           SizedBox(height: 15.0),
           TextFormField(
             obscureText: true,
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              hintText: "Password",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
+            decoration: Styles.input.copyWith(
+              hintText: 'Password',
             ),
             validator: validatePassword,
           ),
           SizedBox(height: 15.0),
           TextFormField(
             obscureText: true,
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              hintText: "Password Confirm",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
+            decoration: Styles.input.copyWith(
+              hintText: 'Password Confirm',
             ),
             validator: validatePasswordConfirm,
           ),
           SizedBox(height: 15.0),
-          FlatButton(
-            child: const Text(
-              'Register',
-              style: TextStyle(color: Colors.white),
-            ),
-            color: Colors.blue[500],
-            splashColor: Colors.blue[200],
-            shape: new RoundedRectangleBorder(
-              borderRadius: new BorderRadius.circular(30.0),
-            ),
-            padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          StyledFlatButton(
+            'Register',
             onPressed: submit,
           ),
         ],
