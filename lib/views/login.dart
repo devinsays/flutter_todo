@@ -3,7 +3,10 @@ import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
-import 'package:flutter_todo/classes/screen_arguments.dart';
+import 'package:flutter_todo/utils/screen_arguments.dart';
+import 'package:flutter_todo/utils/validate.dart';
+import 'package:flutter_todo/styles/styles.dart';
+import 'package:flutter_todo/widgets/styled_flat_button.dart';
 
 class LogIn extends StatelessWidget {
   @override
@@ -11,6 +14,7 @@ class LogIn extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Log In'),
+        leading: Container(),
       ),
       body: Center(
         child: Container(
@@ -38,28 +42,6 @@ class LogInFormState extends State<LogInForm> {
   String password;
   String message = '';
 
-  String validateEmail(String value) {
-    if (value.trim().isEmpty) {
-      return 'Email is required.';
-    }
-    Pattern pattern =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value.trim())) {
-      return 'Valid email required.';
-    }
-    email = value.trim();
-    return null;
-  }
-
-  String validatePassword(String value) {
-    if (value.trim().isEmpty) {
-      return 'Password is required.';
-    }
-    password = value.trim();
-    return null;
-  }
-
   Future<void> submit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
@@ -67,17 +49,8 @@ class LogInFormState extends State<LogInForm> {
     }
   }
 
-  void gotoRegister(BuildContext context) {
-    Navigator.pushNamed(context, '/register');
-  }
-
-  void gotoPasswordReset(BuildContext context) {
-    Navigator.pushNamed(context, '/password-reset');
-  }
-
   @override
   Widget build(BuildContext context) {
-
     final ScreenArguments args = ModalRoute.of(context).settings.arguments;
 
     if (args != null) {
@@ -85,7 +58,7 @@ class LogInFormState extends State<LogInForm> {
         message = args.message;
       });
     }
-    
+
     return Form(
       key: _formKey,
       child: Column(
@@ -95,85 +68,73 @@ class LogInFormState extends State<LogInForm> {
           Text(
             'Log in to the App',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18.0,
-            ),
+            style: Styles.h1,
           ),
           SizedBox(height: 10.0),
           Consumer<AuthProvider>(
             builder: (context, provider, child) => Text(
               provider.notification ?? this.message ?? '',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.red,
-              ),
+              style: Styles.error,
             ),
           ),
           SizedBox(height: 30.0),
           TextFormField(
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              hintText: "Email",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
+            decoration: Styles.input.copyWith(
+              hintText: 'Email',
             ),
-            validator: validateEmail,
+            validator: (value) {
+              email = value.trim();
+              return Validate.validateEmail(value);
+            }
           ),
           SizedBox(height: 15.0),
           TextFormField(
             obscureText: true,
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              hintText: "Password",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
+            decoration: Styles.input.copyWith(
+              hintText: 'Password',
             ),
-            validator: validatePassword,
+            validator: (value) {
+              password = value.trim();
+              return Validate.requiredField(value, 'Password is required.');
+            }
           ),
           SizedBox(height: 15.0),
-          FlatButton(
-            child: const Text(
-              'Sign In',
-              style: TextStyle(color: Colors.white),
-            ),
-            color: Colors.blue[500],
-            splashColor: Colors.blue[200],
-            shape: new RoundedRectangleBorder(
-              borderRadius: new BorderRadius.circular(30.0),
-            ),
-            padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          StyledFlatButton(
+            'Sign In',
             onPressed: submit,
           ),
           SizedBox(height: 20.0),
           Center(
             child: RichText(
-              text: new TextSpan(
+              text: TextSpan(
                 children: [
-                  new TextSpan(
+                  TextSpan(
                     text: "Don't have an account? ",
-                    style: new TextStyle(color: Colors.black),
+                    style: Styles.p,
                   ),
-                  new TextSpan(
+                  TextSpan(
                     text: 'Register.',
-                    style: new TextStyle(color: Colors.blue[500]),
-                    recognizer: new TapGestureRecognizer()
-                      ..onTap = () => gotoRegister(context),
+                    style: Styles.p.copyWith(color: Colors.blue[500]),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => {
+                        Navigator.pushNamed(context, '/register'),
+                      },
                   ),
                 ],
               ),
             ),
           ),
-          SizedBox(height: 10.0),
+          SizedBox(height: 5.0),
           Center(
             child: RichText(
-              text: new TextSpan(
+              text: TextSpan(
                 text: 'Forgot Your Password?',
-                style: new TextStyle(color: Colors.blue[500]),
-                recognizer: new TapGestureRecognizer()
-                  ..onTap = () => gotoPasswordReset(context),
+                style: Styles.p.copyWith(color: Colors.blue[500]),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () => {
+                     Navigator.pushNamed(context, '/password-reset'),
+                  }
               ),
             ),
           ),

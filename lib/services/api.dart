@@ -4,8 +4,8 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter_todo/providers/auth.dart';
-import 'package:flutter_todo/classes/exceptions.dart';
-import 'package:flutter_todo/classes/todo_response.dart';
+import 'package:flutter_todo/utils/exceptions.dart';
+import 'package:flutter_todo/utils/todo_response.dart';
 import 'package:flutter_todo/models/todo.dart';
 
 class ApiService {

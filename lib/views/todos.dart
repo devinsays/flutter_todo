@@ -68,7 +68,7 @@ class TodosState extends State<Todos> {
 
   void showAddTaskSheet(context) {
 
-    // The addTodo function is passed down to the AddTodo widget
+    // The addTodo function is passed to the AddTodo widget
     // because modals do not have access to the Provider.
     Function addTodo = Provider.of<TodoProvider>(context).addTodo;
 
@@ -85,11 +85,11 @@ class TodosState extends State<Todos> {
       context: context,
       builder: (BuildContext context) {
         return Container(
-          child: new Wrap(
+          child: Wrap(
             children: <Widget>[
-              new ListTile(
-                leading: new Icon(Icons.exit_to_app),
-                title: new Text('Log out'),
+              ListTile(
+                leading: Icon(Icons.exit_to_app),
+                title: Text('Log out'),
                 onTap: () {
                   Provider.of<AuthProvider>(context).logOut();
                   Navigator.pop(context);

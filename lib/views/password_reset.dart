@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
-import 'package:flutter_todo/classes/screen_arguments.dart';
+import 'package:flutter_todo/utils/screen_arguments.dart';
+import 'package:flutter_todo/utils/validate.dart';
+import 'package:flutter_todo/styles/styles.dart';
+import 'package:flutter_todo/widgets/styled_flat_button.dart';
 
 class PasswordReset extends StatelessWidget {
   @override
@@ -14,7 +17,7 @@ class PasswordReset extends StatelessWidget {
       body: Center(
         child: Container(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
+            padding: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
             child: PasswordResetForm(),
           ),
         ),
@@ -39,24 +42,10 @@ class PasswordResetFormState extends State<PasswordResetForm> {
 
   Map response = new Map();
 
-  String validateEmail(String value) {
-    if (value.trim().isEmpty) {
-      return 'Email is required.';
-    }
-    Pattern pattern =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value.trim())) {
-      return 'Valid email required.';
-    }
-    email = value.trim();
-    return null;
-  }
-
   Future<void> submit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
-      response = await Provider.of<AuthProvider>(context).passwordReset(email);
+      response = await Provider.of<AuthProvider>(context).passwordReset(email.trim());
       if (response['reset']) {
         Navigator.pushReplacementNamed(
           context,
@@ -84,42 +73,27 @@ class PasswordResetFormState extends State<PasswordResetForm> {
           Text(
             'Request Password Reset',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18.0,
-            ),
+            style: Styles.h1,
           ),
           SizedBox(height: 10.0),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.red,
-            ),
+            style: Styles.error,
           ),
           SizedBox(height: 30.0),
           TextFormField(
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-              hintText: "Email",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30.0),
-              ),
+            decoration: Styles.input.copyWith(
+              hintText: 'Email',
             ),
-            validator: validateEmail,
+            validator: (value) {
+              email = value.trim();
+              return Validate.validateEmail(value);
+            }
           ),
           SizedBox(height: 15.0),
-          FlatButton(
-            child: const Text(
-              'Send Password Reset Email',
-              style: TextStyle(color: Colors.white),
-            ),
-            color: Colors.blue[500],
-            splashColor: Colors.blue[200],
-            shape: new RoundedRectangleBorder(
-              borderRadius: new BorderRadius.circular(30.0),
-            ),
-            padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+          StyledFlatButton(
+            'Send Password Reset Email',
             onPressed: submit,
           ),
         ],
