@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
-import 'package:flutter_todo/classes/screen_arguments.dart';
+import 'package:flutter_todo/utils/screen_arguments.dart';
+import 'package:flutter_todo/utils/validate.dart';
 import 'package:flutter_todo/styles/styles.dart';
 import 'package:flutter_todo/widgets/styled_flat_button.dart';
 
@@ -43,43 +44,6 @@ class RegisterFormState extends State<RegisterForm> {
 
   Map response = new Map();
 
-  String validateName(String value) {
-    if (value.trim().isEmpty) {
-      return 'Name is required.';
-    }
-    name = value.trim();
-    return null;
-  }
-
-  String validateEmail(String value) {
-    if (value.trim().isEmpty) {
-      return 'Email is required.';
-    }
-    Pattern pattern =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value.trim())) {
-      return 'Valid email required.';
-    }
-    email = value.trim();
-    return null;
-  }
-
-  String validatePassword(String value) {
-    if (value.trim().isEmpty) {
-      return 'Password is required.';
-    }
-    password = value.trim();
-    return null;
-  }
-
-  String validatePasswordConfirm(String value) {
-    if (value.trim().isEmpty) {
-      return 'Password is required.';
-    }
-    passwordConfirm = value.trim();
-    return null;
-  }
 
   Future<void> submit() async {
     final form = _formKey.currentState;
@@ -119,23 +83,27 @@ class RegisterFormState extends State<RegisterForm> {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.red,
-            ),
+            style: Styles.error,
           ),
           SizedBox(height: 30.0),
           TextFormField(
             decoration: Styles.input.copyWith(
               hintText: 'Name',
             ),
-            validator: validateName,
+            validator: (value) {
+              name = value.trim();
+              return Validate.requiredField(value, 'Name is required.');
+            }
           ),
           SizedBox(height: 15.0),
           TextFormField(
             decoration: Styles.input.copyWith(
               hintText: 'Email',
             ),
-            validator: validateEmail,
+            validator: (value) {
+              email = value.trim();
+              return Validate.validateEmail(value);
+            }
           ),
           SizedBox(height: 15.0),
           TextFormField(
@@ -143,7 +111,10 @@ class RegisterFormState extends State<RegisterForm> {
             decoration: Styles.input.copyWith(
               hintText: 'Password',
             ),
-            validator: validatePassword,
+            validator: (value) {
+              password = value.trim();
+              return Validate.requiredField(value, 'Password is required.');
+            }
           ),
           SizedBox(height: 15.0),
           TextFormField(
@@ -151,7 +122,10 @@ class RegisterFormState extends State<RegisterForm> {
             decoration: Styles.input.copyWith(
               hintText: 'Password Confirm',
             ),
-            validator: validatePasswordConfirm,
+            validator: (value) {
+              passwordConfirm = value.trim();
+              return Validate.requiredField(value, 'Password confirm is required.');
+            }
           ),
           SizedBox(height: 15.0),
           StyledFlatButton(

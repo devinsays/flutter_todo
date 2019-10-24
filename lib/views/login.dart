@@ -3,7 +3,8 @@ import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
-import 'package:flutter_todo/classes/screen_arguments.dart';
+import 'package:flutter_todo/utils/screen_arguments.dart';
+import 'package:flutter_todo/utils/validate.dart';
 import 'package:flutter_todo/styles/styles.dart';
 import 'package:flutter_todo/widgets/styled_flat_button.dart';
 
@@ -13,6 +14,7 @@ class LogIn extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Log In'),
+        leading: Container(),
       ),
       body: Center(
         child: Container(
@@ -40,41 +42,11 @@ class LogInFormState extends State<LogInForm> {
   String password;
   String message = '';
 
-  String validateEmail(String value) {
-    if (value.trim().isEmpty) {
-      return 'Email is required.';
-    }
-    Pattern pattern =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = new RegExp(pattern);
-    if (!regex.hasMatch(value.trim())) {
-      return 'Valid email required.';
-    }
-    email = value.trim();
-    return null;
-  }
-
-  String validatePassword(String value) {
-    if (value.trim().isEmpty) {
-      return 'Password is required.';
-    }
-    password = value.trim();
-    return null;
-  }
-
   Future<void> submit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
       await Provider.of<AuthProvider>(context).login(email, password);
     }
-  }
-
-  void gotoRegister(BuildContext context) {
-    Navigator.pushNamed(context, '/register');
-  }
-
-  void gotoPasswordReset(BuildContext context) {
-    Navigator.pushNamed(context, '/password-reset');
   }
 
   @override
@@ -103,7 +75,7 @@ class LogInFormState extends State<LogInForm> {
             builder: (context, provider, child) => Text(
               provider.notification ?? this.message ?? '',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Styles.errorColor),
+              style: Styles.error,
             ),
           ),
           SizedBox(height: 30.0),
@@ -111,7 +83,10 @@ class LogInFormState extends State<LogInForm> {
             decoration: Styles.input.copyWith(
               hintText: 'Email',
             ),
-            validator: validateEmail,
+            validator: (value) {
+              email = value.trim();
+              return Validate.validateEmail(value);
+            }
           ),
           SizedBox(height: 15.0),
           TextFormField(
@@ -119,7 +94,10 @@ class LogInFormState extends State<LogInForm> {
             decoration: Styles.input.copyWith(
               hintText: 'Password',
             ),
-            validator: validatePassword,
+            validator: (value) {
+              password = value.trim();
+              return Validate.requiredField(value, 'Password is required.');
+            }
           ),
           SizedBox(height: 15.0),
           StyledFlatButton(
@@ -131,25 +109,32 @@ class LogInFormState extends State<LogInForm> {
             child: RichText(
               text: TextSpan(
                 children: [
-                  TextSpan(text: "Don't have an account? ", style: Styles.p),
+                  TextSpan(
+                    text: "Don't have an account? ",
+                    style: Styles.p,
+                  ),
                   TextSpan(
                     text: 'Register.',
-                    style: Styles.p.copyWith(color: Styles.linkColor),
-                    recognizer: new TapGestureRecognizer()
-                      ..onTap = () => gotoRegister(context),
+                    style: Styles.p.copyWith(color: Colors.blue[500]),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => {
+                        Navigator.pushNamed(context, '/register'),
+                      },
                   ),
                 ],
               ),
             ),
           ),
-          SizedBox(height: 10.0),
+          SizedBox(height: 5.0),
           Center(
             child: RichText(
-              text: new TextSpan(
+              text: TextSpan(
                 text: 'Forgot Your Password?',
-                style: Styles.p.copyWith(color: Styles.linkColor),
+                style: Styles.p.copyWith(color: Colors.blue[500]),
                 recognizer: TapGestureRecognizer()
-                  ..onTap = () => gotoPasswordReset(context),
+                  ..onTap = () => {
+                     Navigator.pushNamed(context, '/password-reset'),
+                  }
               ),
             ),
           ),
