@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
-import 'package:flutter_todo/utils/screen_arguments.dart';
 import 'package:flutter_todo/utils/validate.dart';
 import 'package:flutter_todo/styles/styles.dart';
 import 'package:flutter_todo/widgets/styled_flat_button.dart';
@@ -45,18 +44,12 @@ class PasswordResetFormState extends State<PasswordResetForm> {
   Future<void> submit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
-      response = await Provider.of<AuthProvider>(context).passwordReset(email.trim());
-      if (response['reset']) {
-        Navigator.pushReplacementNamed(
-          context,
-          '/login',
-          arguments: ScreenArguments(
-            response['message'],
-          ),
-        );
+      bool success = await Provider.of<AuthProvider>(context).passwordReset(email);
+      if (success) {
+        Navigator.pushReplacementNamed( context, '/login' );
       } else {
         setState(() {
-          message = response['message'];
+          message = 'An error occurred during password reset.';
         });
       }
     }

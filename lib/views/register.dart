@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
-import 'package:flutter_todo/utils/screen_arguments.dart';
 import 'package:flutter_todo/utils/validate.dart';
 import 'package:flutter_todo/styles/styles.dart';
 import 'package:flutter_todo/widgets/styled_flat_button.dart';
@@ -51,13 +50,7 @@ class RegisterFormState extends State<RegisterForm> {
       response = await Provider.of<AuthProvider>(context)
           .register(name, email, password, passwordConfirm);
       if (response['success']) {
-        Navigator.pushReplacementNamed(
-          context,
-          '/login',
-          arguments: ScreenArguments(
-            response['message'],
-          ),
-        );
+        Navigator.pushReplacementNamed(context, '/login');
       } else {
         setState(() {
           message = response['message'];

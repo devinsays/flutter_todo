@@ -3,9 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_todo/providers/auth.dart';
-import 'package:flutter_todo/utils/screen_arguments.dart';
 import 'package:flutter_todo/utils/validate.dart';
 import 'package:flutter_todo/styles/styles.dart';
+import 'package:flutter_todo/widgets/notification_text.dart';
 import 'package:flutter_todo/widgets/styled_flat_button.dart';
 
 class LogIn extends StatelessWidget {
@@ -51,14 +51,6 @@ class LogInFormState extends State<LogInForm> {
 
   @override
   Widget build(BuildContext context) {
-    final ScreenArguments args = ModalRoute.of(context).settings.arguments;
-
-    if (args != null) {
-      setState(() {
-        message = args.message;
-      });
-    }
-
     return Form(
       key: _formKey,
       child: Column(
@@ -72,11 +64,7 @@ class LogInFormState extends State<LogInForm> {
           ),
           SizedBox(height: 10.0),
           Consumer<AuthProvider>(
-            builder: (context, provider, child) => Text(
-              provider.notification ?? this.message ?? '',
-              textAlign: TextAlign.center,
-              style: Styles.error,
-            ),
+            builder: (context, provider, child) => provider.notification ?? NotificationText(''),
           ),
           SizedBox(height: 30.0),
           TextFormField(
