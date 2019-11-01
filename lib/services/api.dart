@@ -97,6 +97,11 @@ class ApiService {
     );
 
     validateResponseStatus(response.statusCode, 201);
+
+    // Returns the id of the newly created item.
+    Map<String, dynamic> apiResponse = json.decode(response.body);
+    int id = apiResponse['id'];
+    return id;
   }
 
 }

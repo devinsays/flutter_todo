@@ -66,12 +66,13 @@ class TodoProvider with ChangeNotifier {
 
     try {
       // Posts the new item to our API.
-      await apiService.addTodo(text);
+      int id = await apiService.addTodo(text);
 
       // If no exceptions were thrown by API Service,
       // we add the item to _openTodos.
       Todo todo = new Todo();
       todo.value = text;
+      todo.id = id;
       todo.status = 'open';
 
       List<Todo> openTodosModified = _openTodos;
