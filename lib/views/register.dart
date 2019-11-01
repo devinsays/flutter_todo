@@ -50,7 +50,7 @@ class RegisterFormState extends State<RegisterForm> {
       response = await Provider.of<AuthProvider>(context)
           .register(name, email, password, passwordConfirm);
       if (response['success']) {
-        Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pop(context);
       } else {
         setState(() {
           message = response['message'];

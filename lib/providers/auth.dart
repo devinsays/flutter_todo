@@ -11,12 +11,10 @@ class AuthProvider with ChangeNotifier {
 
   Status _status = Status.Uninitialized;
   String _token;
-  String _name;
   NotificationText _notification;
 
   Status get status => _status;
   String get token => _token;
-  String get name => _name;
   NotificationText get notification => _notification;
 
   final String api = 'https://laravelreact.com/api/v1/auth';
