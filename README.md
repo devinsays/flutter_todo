@@ -7,13 +7,9 @@ The app uses an external REST API (built with Laravel) that can be accessed at [
 Here's a quick video showing how the app works:
 https://www.youtube.com/watch?v=MwGy3unwhgM
 
-![Register Screen](https://github.com/devinsays/flutter_todo/raw/master/docs/register.jpg)
-
-![Login Screen](https://github.com/devinsays/flutter_todo/raw/master/docs/login.jpg)
-
-![To Do List](https://github.com/devinsays/flutter_todo/raw/master/docs/todo-list.jpg)
-
-![Add To Do](https://github.com/devinsays/flutter_todo/raw/master/docs/add-todo.jpg)
+|![Register Screen](https://github.com/devinsays/flutter_todo/raw/master/docs/register.jpg)| ![Login Screen](https://github.com/devinsays/flutter_todo/raw/master/docs/login.jpg)|
+|--|--|
+![To Do List](https://github.com/devinsays/flutter_todo/raw/master/docs/todo-list.jpg)|![Add To Do](https://github.com/devinsays/flutter_todo/raw/master/docs/add-todo.jpg)
 
 The app handles:
 
