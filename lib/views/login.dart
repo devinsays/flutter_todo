@@ -45,7 +45,8 @@ class LogInFormState extends State<LogInForm> {
   Future<void> submit() async {
     final form = _formKey.currentState;
     if (form.validate()) {
-      await Provider.of<AuthProvider>(context).login(email, password);
+      await Provider.of<AuthProvider>(context, listen: false)
+          .login(email, password);
     }
   }
 
@@ -64,29 +65,28 @@ class LogInFormState extends State<LogInForm> {
           ),
           SizedBox(height: 10.0),
           Consumer<AuthProvider>(
-            builder: (context, provider, child) => provider.notification ?? NotificationText(''),
+            builder: (context, provider, child) =>
+                provider.notification ?? NotificationText(''),
           ),
           SizedBox(height: 30.0),
           TextFormField(
-            decoration: Styles.input.copyWith(
-              hintText: 'Email',
-            ),
-            validator: (value) {
-              email = value.trim();
-              return Validate.validateEmail(value);
-            }
-          ),
+              decoration: Styles.input.copyWith(
+                hintText: 'Email',
+              ),
+              validator: (value) {
+                email = value.trim();
+                return Validate.validateEmail(value);
+              }),
           SizedBox(height: 15.0),
           TextFormField(
-            obscureText: true,
-            decoration: Styles.input.copyWith(
-              hintText: 'Password',
-            ),
-            validator: (value) {
-              password = value.trim();
-              return Validate.requiredField(value, 'Password is required.');
-            }
-          ),
+              obscureText: true,
+              decoration: Styles.input.copyWith(
+                hintText: 'Password',
+              ),
+              validator: (value) {
+                password = value.trim();
+                return Validate.requiredField(value, 'Password is required.');
+              }),
           SizedBox(height: 15.0),
           StyledFlatButton(
             'Sign In',
@@ -106,8 +106,8 @@ class LogInFormState extends State<LogInForm> {
                     style: Styles.p.copyWith(color: Colors.blue[500]),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () => {
-                        Navigator.pushNamed(context, '/register'),
-                      },
+                            Navigator.pushNamed(context, '/register'),
+                          },
                   ),
                 ],
               ),
@@ -117,13 +117,12 @@ class LogInFormState extends State<LogInForm> {
           Center(
             child: RichText(
               text: TextSpan(
-                text: 'Forgot Your Password?',
-                style: Styles.p.copyWith(color: Colors.blue[500]),
-                recognizer: TapGestureRecognizer()
-                  ..onTap = () => {
-                     Navigator.pushNamed(context, '/password-reset'),
-                  }
-              ),
+                  text: 'Forgot Your Password?',
+                  style: Styles.p.copyWith(color: Colors.blue[500]),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () => {
+                          Navigator.pushNamed(context, '/password-reset'),
+                        }),
             ),
           ),
         ],

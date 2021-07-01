@@ -4,14 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:flutter_todo/providers/auth.dart';
 
 class Loading extends StatelessWidget {
-
   initAuthProvider(context) async {
-    Provider.of<AuthProvider>(context).initAuthProvider();
+    Provider.of<AuthProvider>(context, listen: false).initAuthProvider();
   }
 
   @override
   Widget build(BuildContext context) {
-
     initAuthProvider(context);
 
     return Scaffold(

@@ -8,7 +8,6 @@ import 'package:flutter_todo/widgets/notification_text.dart';
 enum Status { Uninitialized, Authenticated, Authenticating, Unauthenticated }
 
 class AuthProvider with ChangeNotifier {
-
   Status _status = Status.Uninitialized;
   String _token;
   NotificationText _notification;
@@ -35,14 +34,17 @@ class AuthProvider with ChangeNotifier {
     _notification = null;
     notifyListeners();
 
-    final url = "$api/login";
+    final url = Uri.parse("$api/login");
 
     Map<String, String> body = {
       'email': email,
       'password': password,
     };
 
-    final response = await http.post(url, body: body,);
+    final response = await http.post(
+      url,
+      body: body,
+    );
 
     if (response.statusCode == 200) {
       Map<String, dynamic> apiResponse = json.decode(response.body);
@@ -66,8 +68,9 @@ class AuthProvider with ChangeNotifier {
     return false;
   }
 
-  Future<Map> register(String name, String email, String password, String passwordConfirm) async {
-    final url = "$api/register";
+  Future<Map> register(String name, String email, String password,
+      String passwordConfirm) async {
+    final url = Uri.parse("$api/register");
 
     Map<String, String> body = {
       'name': name,
@@ -81,10 +84,15 @@ class AuthProvider with ChangeNotifier {
       "message": 'Unknown error.'
     };
 
-    final response = await http.post( url, body: body, );
+    final response = await http.post(
+      url,
+      body: body,
+    );
 
     if (response.statusCode == 200) {
-      _notification = NotificationText('Registration successful, please log in.', type: 'info');
+      _notification = NotificationText(
+          'Registration successful, please log in.',
+          type: 'info');
       notifyListeners();
       result['success'] = true;
       return result;
@@ -110,16 +118,20 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<bool> passwordReset(String email) async {
-    final url = "$api/forgot-password";
+    final url = Uri.parse("$api/forgot-password");
 
     Map<String, String> body = {
       'email': email,
     };
 
-    final response = await http.post( url, body: body, );
+    final response = await http.post(
+      url,
+      body: body,
+    );
 
     if (response.statusCode == 200) {
-      _notification = NotificationText('Reset sent. Please check your inbox.', type: 'info');
+      _notification = NotificationText('Reset sent. Please check your inbox.',
+          type: 'info');
       notifyListeners();
       return true;
     }
@@ -142,12 +154,12 @@ class AuthProvider with ChangeNotifier {
   logOut([bool tokenExpired = false]) async {
     _status = Status.Unauthenticated;
     if (tokenExpired == true) {
-      _notification = NotificationText('Session expired. Please log in again.', type: 'info');
+      _notification = NotificationText('Session expired. Please log in again.',
+          type: 'info');
     }
     notifyListeners();
 
     SharedPreferences storage = await SharedPreferences.getInstance();
     await storage.clear();
   }
-
 }

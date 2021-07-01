@@ -13,12 +13,10 @@ class Todos extends StatefulWidget {
 }
 
 class TodosState extends State<Todos> {
-
   bool loading = false;
   String activeTab = 'open';
 
   toggleTodo(BuildContext context, Todo todo) async {
-
     String statusModified = todo.status == 'open' ? 'closed' : 'open';
 
     bool updated = await Provider.of<TodoProvider>(context).toggleTodo(todo);
@@ -37,7 +35,7 @@ class TodosState extends State<Todos> {
     }
 
     if (mounted) {
-      Scaffold.of(context).showSnackBar(statusMessage);
+      ScaffoldMessenger.of(context).showSnackBar(statusMessage);
     }
   }
 
@@ -49,25 +47,27 @@ class TodosState extends State<Todos> {
   }
 
   void loadMore() async {
-
     // If we're already loading return early.
     if (loading) {
       return;
     }
 
-    setState(() { loading = true; });
+    setState(() {
+      loading = true;
+    });
 
     // Loads more items in the activeTab.
     await Provider.of<TodoProvider>(context).loadMore(activeTab);
 
     // If auth token has expired, widget is disposed and state is not set.
     if (mounted) {
-      setState(() { loading = false; });
+      setState(() {
+        loading = false;
+      });
     }
   }
 
   void showAddTaskSheet(context) {
-
     // The addTodo function is passed to the AddTodo widget
     // because modals do not have access to the Provider.
     Function addTodo = Provider.of<TodoProvider>(context).addTodo;
@@ -82,29 +82,27 @@ class TodosState extends State<Todos> {
 
   void displayProfileMenu(context) {
     showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          child: Wrap(
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.exit_to_app),
-                title: Text('Log out'),
-                onTap: () {
-                  Provider.of<AuthProvider>(context).logOut();
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        );
-      }
-    );
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            child: Wrap(
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.exit_to_app),
+                  title: Text('Log out'),
+                  onTap: () {
+                    Provider.of<AuthProvider>(context, listen: false).logOut();
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          );
+        });
   }
 
   @override
   Widget build(BuildContext context) {
-
     final openTodos = Provider.of<TodoProvider>(context).openTodos;
     final closedTodos = Provider.of<TodoProvider>(context).closedTodos;
 
@@ -149,5 +147,4 @@ class TodosState extends State<Todos> {
       ),
     );
   }
-
 }

@@ -9,7 +9,6 @@ import 'package:flutter_todo/utils/todo_response.dart';
 import 'package:flutter_todo/models/todo.dart';
 
 class ApiService {
-
   AuthProvider authProvider;
   String token;
 
@@ -30,26 +29,24 @@ class ApiService {
   */
   void validateResponseStatus(int status, int validStatus) {
     if (status == 401) {
-      throw new AuthException( "401", "Unauthorized" ); 
+      throw new AuthException("401", "Unauthorized");
     }
 
     if (status != validStatus) {
-      throw new ApiException( status.toString(), "API Error" ); 
+      throw new ApiException(status.toString(), "API Error");
     }
   }
 
   // Returns a list of todos.
-  Future<TodoResponse> getTodos(String status, { String url = '' }) async {
+  Future<TodoResponse> getTodos(String status, {String url = ''}) async {
     // Defaults to the first page if no url is set.
     if ('' == url) {
       url = "$api?status=$status";
     }
 
     final response = await http.get(
-      url,
-      headers: {
-        HttpHeaders.authorizationHeader: 'Bearer $token'
-      },
+      Uri.parse(url),
+      headers: {HttpHeaders.authorizationHeader: 'Bearer $token'},
     );
 
     validateResponseStatus(response.statusCode, 200);
@@ -71,13 +68,9 @@ class ApiService {
       'status': status,
     };
 
-    final response = await http.patch(
-      url,
-      headers: {
-        HttpHeaders.authorizationHeader: 'Bearer $token'
-      },
-      body: body
-    );
+    final response = await http.patch(Uri.parse(url),
+        headers: {HttpHeaders.authorizationHeader: 'Bearer $token'},
+        body: body);
 
     validateResponseStatus(response.statusCode, 200);
   }
@@ -88,13 +81,9 @@ class ApiService {
       'value': text,
     };
 
-    final response = await http.post(
-      api,
-      headers: {
-        HttpHeaders.authorizationHeader: 'Bearer $token'
-      },
-      body: body
-    );
+    final response = await http.post(Uri.parse(api),
+        headers: {HttpHeaders.authorizationHeader: 'Bearer $token'},
+        body: body);
 
     validateResponseStatus(response.statusCode, 201);
 
@@ -103,5 +92,4 @@ class ApiService {
     int id = apiResponse['id'];
     return id;
   }
-
 }
